@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -37,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core.apps.CoreConfig'
+    'core.apps.CoreConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -51,6 +53,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'MyTunes.urls'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 TEMPLATES = [
     {
@@ -79,6 +84,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation
