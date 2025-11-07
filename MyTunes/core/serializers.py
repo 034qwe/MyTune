@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from .models import Music
 
 class MusicSerializer(serializers.ModelSerializer):
-    # owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # cover = serializers.ImageField(max_length=None, use_url=True)
 
     class Meta:
         model = Music
