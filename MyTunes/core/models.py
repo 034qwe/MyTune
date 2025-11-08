@@ -23,7 +23,7 @@ class Creator(models.Model):
         return self.nickname
 
 
-class Categoty(models.model):
+class Category(models.Model):
     cat_name = models.CharField(max_length=100)
     
 class Album(models.Model):
@@ -38,6 +38,7 @@ class Album(models.Model):
     
 
 class Music(models.Model):
+    categ = models.M
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
