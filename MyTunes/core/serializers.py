@@ -9,10 +9,3 @@ class MusicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Music
         fields = '__all__'
-
-# class MusicCreateSerializer(serializers.ModelSerializer):
-#     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
-#     class Meta:
-#         model = Music
-#         fields = '__all__'
