@@ -6,6 +6,9 @@ class MusicSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     # cover = serializers.ImageField(max_length=None, use_url=True)
 
+
+
+
     class Meta:
         model = Music
         fields = '__all__'
