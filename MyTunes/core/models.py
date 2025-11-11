@@ -22,10 +22,6 @@ class Creator(models.Model):
     def __str__(self):
         return self.nickname
 
-
-class Category(models.Model):
-    cat_name = models.CharField(max_length=100)
-    
 class Album(models.Model):
     create_time = models.DateField(auto_now_add=True)
     creator = models.ForeignKey(Creator,on_delete=models.CASCADE)
@@ -38,7 +34,6 @@ class Album(models.Model):
     
 
 class Music(models.Model):
-    categ = models.M
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -49,6 +44,28 @@ class Music(models.Model):
     def __str__(self):
         return self.title
 
+class Category_Song(models.Model):
+    which_music = models.OneToOneField(Music,on_delete=models.CASCADE)
+
+    def __srt__(self):
+        return self.which_music
+    
+
+class Category(models.Model):
+    cat_name = models.CharField(max_length=100)
+
+
+    def __srt__(self):
+        return self.cat_name
+
+class Category_Bridge(models.Model):
+    song = models.ForeignKey(Category_Song,on_delete=models.CASCADE)
+    cat = models.ForeignKey(Category,on_delete=models.CASCADE)
+
+    # def __srt__(self):
+    #     return self.song__which_music
+    
+    
 
 
 
