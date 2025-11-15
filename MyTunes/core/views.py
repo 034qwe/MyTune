@@ -23,3 +23,10 @@ class MusicAPICreate(generics.CreateAPIView):
     #         return Music.objects.all()
     serializer_class = MusicSerializer
     permission_classes = (IsAuthenticated,)
+
+class CreatorAPIAdd(generics.CreateAPIView):
+    queryset = Creator.objects.all()
+
+    serializer_class = CreatorSerializer
+    
+

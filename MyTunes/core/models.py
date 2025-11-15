@@ -4,14 +4,15 @@ from rest_framework.response import Response
 
 # Create your models here.
 def user_covers_path(instance,filename):
-    return f'covers/{instance.owner.username}/{filename}'
+    return f'covers/{instance.creator.nickname}/{filename}'
     
 def  user_icon_path(instance, filename):
-    return f'icons/{instance.creator.username}/{filename}'
+    return f'icons/{instance.account.username}/{filename}'
+
 def user_tunes_path(instance, filename):
     # if filename[-3:] != 'mp4':
     #     return Response({"error": "File must be an mp4."}, status=400)
-    return f'tunes/{instance.owner.username}/{filename}'
+    return f'tunes/{instance.owner.nickname}/{filename}'
 
 class Creator(models.Model):
     account = models.OneToOneField(User,on_delete=models.CASCADE)
@@ -36,7 +37,7 @@ class Album(models.Model):
 class Music(models.Model):
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Creator, on_delete=models.CASCADE)
     title = models.CharField(max_length=300)
     description = models.TextField(null=True)
     tune  = models.FileField(upload_to=user_tunes_path)
