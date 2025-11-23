@@ -48,7 +48,7 @@ class Music(models.Model):
 class Category_Song(models.Model):
     which_music = models.OneToOneField(Music,on_delete=models.CASCADE)
 
-    def __srt__(self):
+    def __str__(self):
         return self.which_music
     
 

@@ -27,6 +27,7 @@ class MusicAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
 class CreatorAPIAdd(APIView):
+    permission_classes =(IsAuthenticated)
 
     def post(self, request):  
         serializer = CreatorSerializer(data=request.data, context={"request": request})

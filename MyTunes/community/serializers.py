@@ -1,0 +1,24 @@
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import (
+    Thread,
+    Like_Comment,
+    Like_Thread,
+    Comment
+    )
+
+class ThreadSerializer(serializers.ModelSerializer):
+    comments  = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
+    
+
+    def get_likes(self, obj):
+        return len([i for i in Like_Thread.objects.filter(where__pk = obj.pk)])
+
+
+    def get_comments(self, obj):
+        return [f'{i.comment} ({len([i for i in Like_Comment.objects.filter(where__about_w__pk = obj.pk)])} likes)' for i in Comment.objects.filter(about_w__pk =obj.pk ) ]
+
+    class Meta:
+        model = Thread
+        fields = '__all__'
