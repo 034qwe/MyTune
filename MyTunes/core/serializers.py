@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import *
+import inspect
 
 class MusicSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -8,24 +9,19 @@ class MusicSerializer(serializers.ModelSerializer):
     category = serializers.SerializerMethodField()
 
     def get_category(self, obj):
-        cat_song = obj.category_song
+        categ = obj.category_song
 
-   
-        bridges = Category_Bridge.objects.filter(song=cat_song)
-
-
-        return [b.cat.cat_name for b in bridges]
-   
-
+        bridges = Category_Bridge.objects.filter(song=categ)
+        return [i.cat.cat_name for i in bridges]
     
-
-
     class Meta:
         model = Music
         fields = '__all__' 
+        
 
 class CreatorSerializer(serializers.ModelSerializer):
     account = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    
 
     class Meta:
         model = Creator

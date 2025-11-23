@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from rest_framework import generics ,viewsets
+from rest_framework import generics ,viewsets, status 
+from rest_framework.views import APIView
 from .serializers import *
 from .models import *
 from rest_framework.permissions import IsAuthenticated
+from django.db import IntegrityError
 
 # Create your views here.
 class MusicAPIVIew(generics.ListAPIView):
@@ -24,9 +26,36 @@ class MusicAPICreate(generics.CreateAPIView):
     serializer_class = MusicSerializer
     permission_classes = (IsAuthenticated,)
 
-class CreatorAPIAdd(generics.CreateAPIView):
-    queryset = Creator.objects.all()
+class CreatorAPIAdd(APIView):
 
-    serializer_class = CreatorSerializer
+    def post(self, request):  
+        serializer = CreatorSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            try:
+                serializer.save()
+            except IntegrityError:
+                return Response(
+                    {"detail": "Creator already exists."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+        
+    # def get_queryset(self):
+    #     if Creator.objects.filter(account__pk = self.kwargs.get('pk')):
+    #         pass
+    #     else: return Response('FAILURE')
+
+
+    # queryset = Creator.objects.all()
+
+    # serializer_class = CreatorSerializer
     
 
