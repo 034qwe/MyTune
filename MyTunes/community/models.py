@@ -12,6 +12,7 @@ class Thread(models.Model):
     def __str__(self):
         return self.title
 
+
 class Comment(models.Model):
     comment = models.TextField()
     about_w = models.ForeignKey(Thread,on_delete=models.CASCADE)
