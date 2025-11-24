@@ -8,8 +8,6 @@ from django.db import IntegrityError
 
 # Create your views here.
 class MusicAPIVIew(generics.ListAPIView):
-
-    
     queryset = Music.objects.all()
     
     serializer_class = MusicSerializer
