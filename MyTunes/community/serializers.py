@@ -7,7 +7,25 @@ from .models import (
     Comment
     )
 
+
+
+class LikeThreadSerializer(serializers.ModelSerializer):
+    who = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Like_Thread
+        fields = "__all__"
+
+class LikeCommentSerializer(serializers.ModelSerializer):
+   
+
+    class Meta:
+        model = Like_Comment
+        fields = '__all__'
+    
+
 class ThreadSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     comments  = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
     
