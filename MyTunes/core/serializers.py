@@ -26,3 +26,15 @@ class CreatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Creator
         fields = '__all__'
+
+class AlbumSerializer(serializers.ModelSerializer):
+    tracks = serializers.SerializerMethodField()
+
+    def get_tracks(self, obj):
+        return list(obj.music_set.values_list('title', flat=True))
+
+
+
+    class Meta:
+        model = Album
+        fields = '__all__'
