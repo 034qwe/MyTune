@@ -33,7 +33,7 @@ class MyMusicAPIView(generics.ListAPIView):
 
 class AlbumAPIVIew(generics.ListCreateAPIView):
     queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
+    serializer_class = AlbumSerializer  
 
 class CreatorAPIAdd(APIView):
     permission_classes =(IsAuthenticated)
@@ -54,6 +54,22 @@ class CreatorAPIAdd(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+class DiscographyAPIView(generics.ListAPIView):
+    def get_queryset(self):
+
+        a = self.kwargs['creator_slug']
+        print(type(a))
+        print(a.replace('_',' '))
+        # print(a)
+     
+        
+        
+        
+        return Album.objects.filter(creator__nickname=self.kwargs['creator_slug'].replace('_',' '),)
+    
+    serializer_class = AlbumSerializer
+    
+        
 
 
 

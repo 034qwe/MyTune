@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from rest_framework.response import Response
+from django.urls import reverse
+
 
 # Create your models here.
 def user_covers_path(instance,filename):
@@ -28,6 +30,10 @@ class Album(models.Model):
     creator = models.ForeignKey(Creator,on_delete=models.CASCADE)
     cover_album = models.ImageField(upload_to=user_covers_path,null=True,)
     name = models.TextField(max_length=300)
+
+    def get_absolute_url(self):
+        return reverse('cr', kwargs={'creator_slug':self.creator})
+
     
 
     def __str__(self):

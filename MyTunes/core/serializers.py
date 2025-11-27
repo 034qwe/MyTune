@@ -32,9 +32,10 @@ class AlbumSerializer(serializers.ModelSerializer):
 
     def get_tracks(self, obj):
         return list(obj.music_set.values_list('title', flat=True))
-
-
+    
 
     class Meta:
         model = Album
         fields = '__all__'
+    
+    
