@@ -4,7 +4,8 @@ from .views import (
     ThreadOneAPIVIew,
     MyThreadsAPIView,
     LikeCommentAPIVIew,
-    LikeThreadAPIView
+    LikeThreadAPIView,
+    AddCommentAPIView
     )
 
 
@@ -13,5 +14,6 @@ urlpatterns = [
     path("comm/edit-thread/<int:pk>/",ThreadOneAPIVIew.as_view()),
     path("comm/MyThreads/", MyThreadsAPIView.as_view()),
     path("comm/CommentLike/",LikeCommentAPIVIew.as_view()),
-    path("comm/ThreadLike/", LikeThreadAPIView.as_view())
+    path("comm/ThreadLike/", LikeThreadAPIView.as_view()),
+    path('comm/addcomment/',AddCommentAPIView.as_view())
 ]

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics ,status 
-from .serializers import ThreadSerializer, LikeCommentSerializer, LikeThreadSerializer
+from .serializers import ThreadSerializer, LikeCommentSerializer, LikeThreadSerializer, CommentCreateSerializer
 from .permissions import IsOwnerOrReadOnly
 from .APIViews import CreateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +22,8 @@ class ThreadOneAPIVIew(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ThreadSerializer
     def get_queryset(self):
         return Thread.objects.filter(pk=self.kwargs.get('pk'))
+    
+    parser_classes = (IsAuthenticated,)
 
     permission_classes =(IsOwnerOrReadOnly, )
 
@@ -42,4 +44,7 @@ class LikeThreadAPIView(CreateDestroyAPIView):
     serializer_class = LikeThreadSerializer
     permission_classes = (IsAuthenticated,)
 
-    
+class AddCommentAPIView(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentCreateSerializer
+    permission_classes = (IsAuthenticated,)

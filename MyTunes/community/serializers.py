@@ -6,9 +6,13 @@ from .models import (
     Like_Thread,
     Comment
     )
+class CommentCreateSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Comment
+        fields = '__all__'
 
-
+        
 class LikeThreadSerializer(serializers.ModelSerializer):
     who = serializers.HiddenField(default=serializers.CurrentUserDefault())
 

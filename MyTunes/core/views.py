@@ -56,15 +56,6 @@ class CreatorAPIAdd(APIView):
 
 class DiscographyAPIView(generics.ListAPIView):
     def get_queryset(self):
-
-        a = self.kwargs['creator_slug']
-        print(type(a))
-        print(a.replace('_',' '))
-        # print(a)
-     
-        
-        
-        
         return Album.objects.filter(creator__nickname=self.kwargs['creator_slug'].replace('_',' '),)
     
     serializer_class = AlbumSerializer
