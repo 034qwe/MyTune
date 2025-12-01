@@ -17,6 +17,10 @@ class ThreadAPIView(generics.ListCreateAPIView):
     serializer_class = ThreadSerializer
     queryset = Thread.objects.all()
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return []
 
 class ThreadOneAPIVIew(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ThreadSerializer

@@ -162,8 +162,8 @@ const App = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {currentPage === 'music' && <MusicPage music={music} token={token} />}
         {currentPage === 'albums' && <AlbumsPage albums={albums} />}
-        {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} />}
-        {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} />}
+        {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} />}
+        {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} />}
         {currentPage === 'upload' && <UploadPage token={token} albums={albums} fetchMusic={fetchMusic} />}
       </main>
     </div>
@@ -203,7 +203,8 @@ const AuthPage = ({ setToken }) => {
           setIsLogin(true);
           setError('Account created! Please login.');
         } else {
-          setError('Registration failed');
+          const data = await res.json();
+          setError(data.username?.[0] || data.password?.[0] || 'Registration failed');
         }
       }
     } catch (err) {
@@ -258,7 +259,7 @@ const AuthPage = ({ setToken }) => {
   );
 };
 
-const BecomeCreatorPage = ({ token, setCreator }) => {
+const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
   const [nickname, setNickname] = useState('');
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState(null);
@@ -280,6 +281,9 @@ const BecomeCreatorPage = ({ token, setCreator }) => {
       if (res.ok) {
         setMessage('✅ You are now a creator!');
         setCreator(true);
+        setTimeout(() => {
+          setCurrentPage('upload');
+        }, 2000);
       } else {
         const data = await res.json();
         setMessage('❌ ' + (data.detail || 'Error creating creator'));
@@ -352,6 +356,11 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
       return;
     }
 
+    if (!albumId) {
+      setMessage('❌ Please select an album');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
@@ -370,9 +379,11 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
         setTitle('');
         setDescription('');
         setTune(null);
+        document.querySelector('input[type="file"]').value = '';
         fetchMusic();
       } else {
-        setMessage('❌ Upload failed');
+        const data = await res.json();
+        setMessage('❌ Upload failed: ' + JSON.stringify(data));
       }
     } catch (err) {
       setMessage('❌ Connection error');
@@ -504,7 +515,7 @@ const AlbumsPage = ({ albums }) => {
   );
 };
 
-const CommunityPage = ({ threads, token, fetchThreads }) => {
+const CommunityPage = ({ threads, token, fetchThreads, user }) => {
   const [showCreateThread, setShowCreateThread] = useState(false);
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
@@ -534,7 +545,7 @@ const CommunityPage = ({ threads, token, fetchThreads }) => {
 
   const likeThread = async (threadId) => {
     try {
-      await fetch(`${API_URL}/comm/ThreadLike/`, {
+      const res = await fetch(`${API_URL}/comm/ThreadLike/`, {
         method: 'POST',
         headers: {
           'Authorization': `Token ${token}`,
@@ -542,7 +553,10 @@ const CommunityPage = ({ threads, token, fetchThreads }) => {
         },
         body: JSON.stringify({ where: threadId })
       });
-      fetchThreads();
+      
+      if (res.ok) {
+        fetchThreads();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -626,7 +640,7 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
 
   const postComment = async () => {
     try {
-      const res = await fetch(`${API_URL}/comm/threads/`, {
+      const res = await fetch(`${API_URL}/comm/comments/`, {
         method: 'POST',
         headers: {
           'Authorization': `Token ${token}`,
@@ -652,6 +666,7 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
           placeholder="Write a comment..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && postComment()}
           className="flex-1 px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         <button

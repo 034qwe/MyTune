@@ -3,14 +3,19 @@ from rest_framework import generics ,viewsets, status
 from rest_framework.views import APIView
 from .serializers import *
 from .models import *
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated , IsAuthenticatedOrReadOnly
 from django.db import IntegrityError
 
 # Create your views here.
 class MusicAPIVIew(generics.ListCreateAPIView):
     queryset = Music.objects.all()
-    
     serializer_class = MusicSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer):
+        
+        creator = Creator.objects.get(account=self.request.user)
+        serializer.save(owner=creator)
 
 # class MusicAPICreate(generics.CreateAPIView):
 #     # def get_gueryset(self):
@@ -34,6 +39,10 @@ class MyMusicAPIView(generics.ListAPIView):
 class AlbumAPIVIew(generics.ListCreateAPIView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer  
+
+    def perform_create(self, serializer):
+        creator = Creator.objects.get(account=self.request.user)
+        serializer.save(creator=creator)
 
 class CreatorAPIAdd(APIView):
     permission_classes =(IsAuthenticated)
