@@ -161,7 +161,7 @@ const App = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {currentPage === 'music' && <MusicPage music={music} token={token} />}
-        {currentPage === 'albums' && <AlbumsPage albums={albums} />}
+        {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} />}
         {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} />}
         {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} />}
         {currentPage === 'upload' && <UploadPage token={token} albums={albums} fetchMusic={fetchMusic} />}
@@ -264,32 +264,50 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState(null);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (!nickname || !description) {
+      setMessage('❌ Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
     const formData = new FormData();
     formData.append('nickname', nickname);
     formData.append('description', description);
-    if (icon) formData.append('icon', icon);
+    if (icon) {
+      formData.append('icon', icon);
+    }
 
     try {
       const res = await fetch(`${API_URL}/core/creatoradd/`, {
         method: 'POST',
-        headers: { 'Authorization': `Token ${token}` },
+        headers: { 
+          'Authorization': `Token ${token}`
+          // НЕ добавляйте Content-Type для FormData!
+        },
         body: formData
       });
+
+      const data = await res.json();
 
       if (res.ok) {
         setMessage('✅ You are now a creator!');
         setCreator(true);
         setTimeout(() => {
-          setCurrentPage('upload');
-        }, 2000);
+          setCurrentPage('music');
+          window.location.reload(); // Перезагрузим страницу для обновления состояния
+        }, 1500);
       } else {
-        const data = await res.json();
-        setMessage('❌ ' + (data.detail || 'Error creating creator'));
+        console.error('Error response:', data);
+        setMessage('❌ ' + (data.detail || data.nickname?.[0] || data.description?.[0] || 'Error creating creator'));
       }
     } catch (err) {
-      setMessage('❌ Connection error');
+      console.error('Connection error:', err);
+      setMessage('❌ Connection error: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -299,22 +317,24 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
       <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20">
         <div className="space-y-4">
           <div>
-            <label className="block text-gray-300 mb-2">Nickname</label>
+            <label className="block text-gray-300 mb-2">Nickname *</label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Your creator name"
+              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-400 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-2">Description</label>
+            <label className="block text-gray-300 mb-2">Description *</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              placeholder="Tell us about yourself"
               rows="4"
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-400 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
@@ -324,25 +344,38 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
               type="file"
               accept="image/*"
               onChange={(e) => setIcon(e.target.files[0])}
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30"
+              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white file:cursor-pointer hover:file:bg-purple-700"
             />
+            {icon && (
+              <p className="text-sm text-gray-300 mt-2">Selected: {icon.name}</p>
+            )}
           </div>
 
-          {message && <p className="text-white">{message}</p>}
+          {message && (
+            <div className={`p-3 rounded-lg ${message.includes('✅') ? 'bg-green-500 bg-opacity-20 text-green-200' : 'bg-red-500 bg-opacity-20 text-red-200'}`}>
+              {message}
+            </div>
+          )}
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
           >
-            <User className="w-5 h-5" />
-            Become Creator
+            {loading ? (
+              <>Loading...</>
+            ) : (
+              <>
+                <User className="w-5 h-5" />
+                Become Creator
+              </>
+            )}
           </button>
         </div>
       </div>
     </div>
   );
 };
-
 const UploadPage = ({ token, albums, fetchMusic }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -488,146 +521,114 @@ const MusicPage = ({ music, token }) => {
   );
 };
 
-const AlbumsPage = ({ albums }) => {
-  return (
-    <div>
-      <h2 className="text-3xl font-bold text-white mb-6">Albums</h2>
+// Найдите функцию AlbumsPage и замените на эту:
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {albums.map((album) => (
-          <div key={album.id} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl overflow-hidden border border-white border-opacity-20 hover:bg-opacity-20 transition">
-            {album.cover_album && (
-              <img src={`${API_URL}${album.cover_album}`} alt={album.name} className="w-full h-48 object-cover" />
-            )}
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-white mb-2">{album.name}</h3>
-              <p className="text-gray-400 text-sm mb-4">{new Date(album.create_time).toLocaleDateString()}</p>
-              <div className="space-y-1">
-                {album.tracks?.map((track, i) => (
-                  <p key={i} className="text-gray-300 text-sm">• {track}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+const AlbumsPage = ({ albums, token, fetchAlbums }) => {
+  const [showCreateAlbum, setShowCreateAlbum] = useState(false);
+  const [albumName, setAlbumName] = useState('');
+  const [albumCover, setAlbumCover] = useState(null);
+  const [message, setMessage] = useState('');
 
-const CommunityPage = ({ threads, token, fetchThreads, user }) => {
-  const [showCreateThread, setShowCreateThread] = useState(false);
-  const [title, setTitle] = useState('');
-  const [text, setText] = useState('');
-  const [selectedThread, setSelectedThread] = useState(null);
-
-  const createThread = async () => {
-    try {
-      const res = await fetch(`${API_URL}/comm/threads/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ title, text })
-      });
-
-      if (res.ok) {
-        setTitle('');
-        setText('');
-        setShowCreateThread(false);
-        fetchThreads();
-      }
-    } catch (err) {
-      console.error(err);
+  const createAlbum = async () => {
+    if (!albumName) {
+      setMessage('❌ Please enter album name');
+      return;
     }
-  };
 
-  const likeThread = async (threadId) => {
+    const formData = new FormData();
+    formData.append('name', albumName);
+    if (albumCover) {
+      formData.append('cover_album', albumCover);
+    }
+
     try {
-      const res = await fetch(`${API_URL}/comm/ThreadLike/`, {
+      const res = await fetch(`${API_URL}/core/albums/`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ where: threadId })
+        headers: { 'Authorization': `Token ${token}` },
+        body: formData
       });
-      
+
       if (res.ok) {
-        fetchThreads();
+        setMessage('✅ Album created!');
+        setAlbumName('');
+        setAlbumCover(null);
+        setShowCreateAlbum(false);
+        fetchAlbums();
+      } else {
+        const data = await res.json();
+        setMessage('❌ ' + (data.detail || 'Error creating album'));
       }
     } catch (err) {
-      console.error(err);
+      setMessage('❌ Connection error');
     }
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-white">Community</h2>
+        <h2 className="text-3xl font-bold text-white">Albums</h2>
         <button
-          onClick={() => setShowCreateThread(!showCreateThread)}
+          onClick={() => setShowCreateAlbum(!showCreateAlbum)}
           className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          New Thread
+          New Album
         </button>
       </div>
 
-      {showCreateThread && (
+      {showCreateAlbum && (
         <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 mb-6">
           <input
             type="text"
-            placeholder="Thread title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Album name"
+            value={albumName}
+            onChange={(e) => setAlbumName(e.target.value)}
             className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
           />
-          <textarea
-            placeholder="What's on your mind?"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows="4"
-            className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAlbumCover(e.target.files[0])}
+            className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 mb-4"
           />
+          {message && <p className="text-white mb-4">{message}</p>}
           <button
-            onClick={createThread}
+            onClick={createAlbum}
             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition"
           >
-            Post Thread
+            Create Album
           </button>
         </div>
       )}
 
-      <div className="space-y-4">
-        {threads.map((thread) => (
-          <div key={thread.id}>
-            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20">
-              <h3 className="text-xl font-bold text-white mb-2">{thread.title}</h3>
-              <p className="text-gray-300 mb-4">{thread.text}</p>
-              <div className="flex items-center gap-4 text-sm text-gray-400">
-                <button
-                  onClick={() => likeThread(thread.id)}
-                  className="flex items-center gap-1 hover:text-red-400 transition"
-                >
-                  <Heart className="w-4 h-4" />
-                  {thread.likes}
-                </button>
-                <button
-                  onClick={() => setSelectedThread(selectedThread === thread.id ? null : thread.id)}
-                  className="flex items-center gap-1 hover:text-blue-400 transition"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  {thread.comments?.length || 0}
-                </button>
-                <span>{new Date(thread.time).toLocaleDateString()}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {albums.map((album) => (
+          <div key={album.id} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl overflow-hidden border border-white border-opacity-20 hover:bg-opacity-20 transition">
+            {album.cover_album && (
+              <img 
+                src={`${API_URL}${album.cover_album}`} 
+                alt={album.name} 
+                className="w-full h-48 object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            )}
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-white mb-2">{album.name}</h3>
+              <p className="text-gray-400 text-sm mb-2">by {album.creator_nickname}</p>
+              <p className="text-gray-400 text-sm mb-4">{new Date(album.create_time).toLocaleDateString()}</p>
+              <div className="space-y-1">
+                <p className="text-gray-400 text-sm font-semibold mb-2">Tracks:</p>
+                {album.tracks && album.tracks.length > 0 ? (
+                  album.tracks.map((track, i) => (
+                    <p key={i} className="text-gray-300 text-sm">• {track}</p>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm italic">No tracks yet</p>
+                )}
               </div>
             </div>
-
-            {selectedThread === thread.id && (
-              <ThreadComments threadId={thread.id} token={token} comments={thread.comments} fetchThreads={fetchThreads} />
-            )}
           </div>
         ))}
       </div>
