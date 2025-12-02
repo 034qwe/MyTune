@@ -273,6 +273,8 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
     }
 
     setLoading(true);
+    setMessage(''); // Clear previous messages
+    
     const formData = new FormData();
     formData.append('nickname', nickname);
     formData.append('description', description);
@@ -285,7 +287,7 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
         method: 'POST',
         headers: { 
           'Authorization': `Token ${token}`
-          // НЕ добавляйте Content-Type для FormData!
+          // Don't set Content-Type for FormData - browser sets it automatically with boundary
         },
         body: formData
       });
@@ -296,16 +298,28 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
         setMessage('✅ You are now a creator!');
         setCreator(true);
         setTimeout(() => {
-          setCurrentPage('music');
-          window.location.reload(); // Перезагрузим страницу для обновления состояния
+          setCurrentPage('upload');
+          // Refresh to update UI state
+          window.location.reload();
         }, 1500);
       } else {
         console.error('Error response:', data);
-        setMessage('❌ ' + (data.detail || data.nickname?.[0] || data.description?.[0] || 'Error creating creator'));
+        // Better error handling
+        let errorMsg = '❌ ';
+        if (data.detail) {
+          errorMsg += data.detail;
+        } else if (data.nickname) {
+          errorMsg += `Nickname: ${data.nickname[0]}`;
+        } else if (data.description) {
+          errorMsg += `Description: ${data.description[0]}`;
+        } else {
+          errorMsg += 'Error creating creator profile';
+        }
+        setMessage(errorMsg);
       }
     } catch (err) {
       console.error('Connection error:', err);
-      setMessage('❌ Connection error: ' + err.message);
+      setMessage('❌ Connection error. Please check your network and try again.');
     } finally {
       setLoading(false);
     }
@@ -317,42 +331,45 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
       <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20">
         <div className="space-y-4">
           <div>
-            <label className="block text-gray-300 mb-2">Nickname *</label>
+            <label className="block text-gray-300 mb-2 font-semibold">Nickname *</label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="Your creator name"
               className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-400 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              disabled={loading}
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-2">Description *</label>
+            <label className="block text-gray-300 mb-2 font-semibold">Description *</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us about yourself"
+              placeholder="Tell us about yourself and your music"
               rows="4"
               className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-400 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              disabled={loading}
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-2">Icon (optional)</label>
+            <label className="block text-gray-300 mb-2 font-semibold">Profile Icon (optional)</label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setIcon(e.target.files[0])}
               className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white file:cursor-pointer hover:file:bg-purple-700"
+              disabled={loading}
             />
             {icon && (
-              <p className="text-sm text-gray-300 mt-2">Selected: {icon.name}</p>
+              <p className="text-sm text-gray-300 mt-2">📷 Selected: {icon.name}</p>
             )}
           </div>
 
           {message && (
-            <div className={`p-3 rounded-lg ${message.includes('✅') ? 'bg-green-500 bg-opacity-20 text-green-200' : 'bg-red-500 bg-opacity-20 text-red-200'}`}>
+            <div className={`p-4 rounded-lg ${message.includes('✅') ? 'bg-green-500 bg-opacity-20 text-green-200 border border-green-500 border-opacity-30' : 'bg-red-500 bg-opacity-20 text-red-200 border border-red-500 border-opacity-30'}`}>
               {message}
             </div>
           )}
@@ -363,7 +380,13 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
             className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
           >
             {loading ? (
-              <>Loading...</>
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creating...
+              </>
             ) : (
               <>
                 <User className="w-5 h-5" />
@@ -371,6 +394,10 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
               </>
             )}
           </button>
+
+          <p className="text-gray-400 text-sm text-center mt-2">
+            * Required fields
+          </p>
         </div>
       </div>
     </div>

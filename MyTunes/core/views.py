@@ -45,7 +45,7 @@ class AlbumAPIVIew(generics.ListCreateAPIView):
         serializer.save(creator=creator)
 
 class CreatorAPIAdd(APIView):
-    permission_classes =(IsAuthenticated)
+    permission_classes =(IsAuthenticated,)
 
     def post(self, request):  
         serializer = CreatorSerializer(data=request.data, context={"request": request})
