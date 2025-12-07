@@ -93,78 +93,71 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <header className="bg-black bg-opacity-30 backdrop-blur-lg border-b border-white border-opacity-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Music className="w-8 h-8 text-purple-400" />
-            <h1 className="text-2xl font-bold text-white">MyTunes</h1>
+    <div className="min-h-screen xp-desktop">
+      <header className="xp-taskbar">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="xp-start-button">
+              <Music className="w-5 h-5 text-white inline mr-2" />
+              <span className="font-bold text-white">MyTunes</span>
+            </div>
           </div>
           
-          <nav className="hidden md:flex gap-6">
-            <button onClick={() => setCurrentPage('music')} className={`px-4 py-2 rounded-lg transition ${currentPage === 'music' ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'}`}>
+          <nav className="hidden md:flex gap-2">
+            <button onClick={() => setCurrentPage('music')} className={`xp-nav-button ${currentPage === 'music' ? 'xp-nav-button-active' : ''}`}>
               Music
             </button>
-            <button onClick={() => setCurrentPage('albums')} className={`px-4 py-2 rounded-lg transition ${currentPage === 'albums' ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'}`}>
+            <button onClick={() => setCurrentPage('albums')} className={`xp-nav-button ${currentPage === 'albums' ? 'xp-nav-button-active' : ''}`}>
               Albums
             </button>
-            <button onClick={() => setCurrentPage('community')} className={`px-4 py-2 rounded-lg transition ${currentPage === 'community' ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'}`}>
+            <button onClick={() => setCurrentPage('community')} className={`xp-nav-button ${currentPage === 'community' ? 'xp-nav-button-active' : ''}`}>
               Community
             </button>
             {!creator && (
-              <button onClick={() => setCurrentPage('become-creator')} className={`px-4 py-2 rounded-lg transition ${currentPage === 'become-creator' ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'}`}>
+              <button onClick={() => setCurrentPage('become-creator')} className={`xp-nav-button ${currentPage === 'become-creator' ? 'xp-nav-button-active' : ''}`}>
                 Become Creator
               </button>
             )}
             {creator && (
-              <button onClick={() => setCurrentPage('upload')} className={`px-4 py-2 rounded-lg transition ${currentPage === 'upload' ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'}`}>
+              <button onClick={() => setCurrentPage('upload')} className={`xp-nav-button ${currentPage === 'upload' ? 'xp-nav-button-active' : ''}`}>
                 Upload
               </button>
             )}
           </nav>
 
-          <div className="flex items-center gap-4">
-            <span className="text-gray-300 hidden md:block">{user?.username}</span>
-            <button onClick={logout} className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition">
-              <LogOut className="w-5 h-5 text-gray-300" />
-            </button>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2">
-              {isMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
+          <div className="flex items-center gap-3">
+            <span className="text-white hidden md:block font-bold">{user?.username}</span>
+            <button onClick={logout} className="xp-button-small">
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
-
-        {isMenuOpen && (
-          <div className="md:hidden bg-black bg-opacity-50 backdrop-blur-lg border-t border-white border-opacity-10 px-4 py-4">
-            <button onClick={() => { setCurrentPage('music'); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg mb-2">
-              Music
-            </button>
-            <button onClick={() => { setCurrentPage('albums'); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg mb-2">
-              Albums
-            </button>
-            <button onClick={() => { setCurrentPage('community'); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg mb-2">
-              Community
-            </button>
-            {!creator && (
-              <button onClick={() => { setCurrentPage('become-creator'); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg mb-2">
-                Become Creator
-              </button>
-            )}
-            {creator && (
-              <button onClick={() => { setCurrentPage('upload'); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg">
-                Upload
-              </button>
-            )}
-          </div>
-        )}
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {currentPage === 'music' && <MusicPage music={music} token={token} />}
-        {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} />}
-        {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} />}
-        {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} />}
-        {currentPage === 'upload' && <UploadPage token={token} albums={albums} fetchMusic={fetchMusic} />}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="xp-window">
+          <div className="xp-window-title">
+            <span className="font-bold">
+              {currentPage === 'music' && '🎵 All Music'}
+              {currentPage === 'albums' && '💿 Albums'}
+              {currentPage === 'community' && '💬 Community'}
+              {currentPage === 'become-creator' && '⭐ Become Creator'}
+              {currentPage === 'upload' && '📤 Upload Track'}
+            </span>
+            <div className="xp-window-controls">
+              <span className="xp-control">_</span>
+              <span className="xp-control">□</span>
+              <span className="xp-control">✕</span>
+            </div>
+          </div>
+          <div className="xp-window-content">
+            {currentPage === 'music' && <MusicPage music={music} token={token} />}
+            {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} />}
+            {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} />}
+            {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} />}
+            {currentPage === 'upload' && <UploadPage token={token} albums={albums} fetchMusic={fetchMusic} />}
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -219,41 +212,61 @@ const AuthPage = ({ setToken }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
-      <div className="bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white border-opacity-20">
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <Music className="w-12 h-12 text-purple-400" />
-          <h1 className="text-3xl font-bold text-white">MyTunes</h1>
+    <div className="min-h-screen xp-desktop flex items-center justify-center p-4">
+      <div className="xp-window" style={{ width: '400px' }}>
+        <div className="xp-window-title">
+          <span className="font-bold">🎵 MyTunes Login</span>
+          <div className="xp-window-controls">
+            <span className="xp-control">_</span>
+            <span className="xp-control">□</span>
+            <span className="xp-control">✕</span>
+          </div>
         </div>
+        <div className="xp-window-content">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Music className="w-12 h-12 text-blue-700" />
+            <h1 className="text-3xl font-bold text-blue-900">MyTunes</h1>
+          </div>
 
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          
-          {error && <p className="text-red-300 text-sm">{error}</p>}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Username:</label>
+              <input
+                type="text"
+                placeholder="Enter username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="xp-input"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Password:</label>
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="xp-input"
+              />
+            </div>
+            
+            {error && (
+              <div className="xp-message xp-message-error">
+                {error}
+              </div>
+            )}
 
-          <button onClick={handleSubmit} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition">
-            {isLogin ? 'Login' : 'Register'}
+            <button onClick={handleSubmit} className="xp-button w-full">
+              {isLogin ? 'Login' : 'Register'}
+            </button>
+          </div>
+
+          <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-4 text-blue-700 hover:text-blue-900 font-bold text-sm underline">
+            {isLogin ? 'Need an account? Register' : 'Have an account? Login'}
           </button>
         </div>
-
-        <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-4 text-gray-300 hover:text-white transition">
-          {isLogin ? 'Need an account? Register' : 'Have an account? Login'}
-        </button>
       </div>
     </div>
   );
@@ -273,7 +286,7 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
     }
 
     setLoading(true);
-    setMessage(''); // Clear previous messages
+    setMessage('');
     
     const formData = new FormData();
     formData.append('nickname', nickname);
@@ -287,7 +300,6 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
         method: 'POST',
         headers: { 
           'Authorization': `Token ${token}`
-          // Don't set Content-Type for FormData - browser sets it automatically with boundary
         },
         body: formData
       });
@@ -299,12 +311,9 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
         setCreator(true);
         setTimeout(() => {
           setCurrentPage('upload');
-          // Refresh to update UI state
           window.location.reload();
         }, 1500);
       } else {
-        console.error('Error response:', data);
-        // Better error handling
         let errorMsg = '❌ ';
         if (data.detail) {
           errorMsg += data.detail;
@@ -318,7 +327,6 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
         setMessage(errorMsg);
       }
     } catch (err) {
-      console.error('Connection error:', err);
       setMessage('❌ Connection error. Please check your network and try again.');
     } finally {
       setLoading(false);
@@ -326,83 +334,62 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-3xl font-bold text-white mb-6">Become a Creator</h2>
-      <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Nickname *</label>
-            <input
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Your creator name"
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-400 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Description *</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us about yourself and your music"
-              rows="4"
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-400 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Profile Icon (optional)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setIcon(e.target.files[0])}
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white file:cursor-pointer hover:file:bg-purple-700"
-              disabled={loading}
-            />
-            {icon && (
-              <p className="text-sm text-gray-300 mt-2">📷 Selected: {icon.name}</p>
-            )}
-          </div>
-
-          {message && (
-            <div className={`p-4 rounded-lg ${message.includes('✅') ? 'bg-green-500 bg-opacity-20 text-green-200 border border-green-500 border-opacity-30' : 'bg-red-500 bg-opacity-20 text-red-200 border border-red-500 border-opacity-30'}`}>
-              {message}
-            </div>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Creating...
-              </>
-            ) : (
-              <>
-                <User className="w-5 h-5" />
-                Become Creator
-              </>
-            )}
-          </button>
-
-          <p className="text-gray-400 text-sm text-center mt-2">
-            * Required fields
-          </p>
-        </div>
+    <div className="space-y-4">
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Nickname: *</label>
+        <input
+          type="text"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          placeholder="Your creator name"
+          className="xp-input"
+          disabled={loading}
+        />
       </div>
+
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Description: *</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Tell us about yourself and your music"
+          rows="4"
+          className="xp-input"
+          disabled={loading}
+        />
+      </div>
+
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Profile Icon (optional):</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setIcon(e.target.files[0])}
+          className="xp-file-input"
+          disabled={loading}
+        />
+        {icon && (
+          <p className="text-sm text-gray-700 mt-2">📷 Selected: {icon.name}</p>
+        )}
+      </div>
+
+      {message && (
+        <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
+          {message}
+        </div>
+      )}
+
+      <button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="xp-button w-full"
+      >
+        {loading ? 'Creating...' : '⭐ Become Creator'}
+      </button>
     </div>
   );
 };
+
 const UploadPage = ({ token, albums, fetchMusic }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -451,104 +438,94 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-3xl font-bold text-white mb-6">Upload Track</h2>
-      <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-300 mb-2">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
+    <div className="space-y-4">
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Title:</label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="xp-input"
+        />
+      </div>
 
-          <div>
-            <label className="block text-gray-300 mb-2">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Description:</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows="3"
+          className="xp-input"
+        />
+      </div>
 
-          <div>
-            <label className="block text-gray-300 mb-2">Album</label>
-            <select
-              value={albumId}
-              onChange={(e) => setAlbumId(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="">Select Album</option>
-              {albums.map((album) => (
-                <option key={album.id} value={album.id}>{album.name}</option>
-              ))}
-            </select>
-          </div>
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Album:</label>
+        <select
+          value={albumId}
+          onChange={(e) => setAlbumId(e.target.value)}
+          className="xp-input"
+        >
+          <option value="">Select Album</option>
+          {albums.map((album) => (
+            <option key={album.id} value={album.id}>{album.name}</option>
+          ))}
+        </select>
+      </div>
 
-          <div>
-            <label className="block text-gray-300 mb-2">Audio File</label>
-            <input
-              type="file"
-              accept="audio/*"
-              onChange={(e) => setTune(e.target.files[0])}
-              className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30"
-            />
-          </div>
+      <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Audio File:</label>
+        <input
+          type="file"
+          accept="audio/*"
+          onChange={(e) => setTune(e.target.files[0])}
+          className="xp-file-input"
+        />
+      </div>
 
-          {message && <p className="text-white">{message}</p>}
-
-          <button
-            onClick={handleUpload}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
-          >
-            <Upload className="w-5 h-5" />
-            Upload Track
-          </button>
+      {message && (
+        <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
+          {message}
         </div>
-      </div>
+      )}
+
+      <button
+        onClick={handleUpload}
+        className="xp-button w-full"
+      >
+        📤 Upload Track
+      </button>
     </div>
   );
 };
 
-const MusicPage = ({ music, token }) => {
+const MusicPage = ({ music }) => {
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-white">All Music</h2>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {music.map((track) => (
-          <div key={track.id} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 hover:bg-opacity-20 transition">
-            <h3 className="text-xl font-bold text-white mb-2">{track.title}</h3>
-            <p className="text-gray-300 mb-4">{track.description}</p>
-            <div className="space-y-2">
-              <span className="text-sm text-gray-400 block">Album ID: {track.album}</span>
-              {track.category && track.category.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {track.category.map((cat, i) => (
-                    <span key={i} className="px-2 py-1 bg-purple-600 bg-opacity-50 rounded text-xs text-white">
-                      {cat}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <audio controls className="w-full mt-2">
-                <source src={`${API_URL}${track.tune}`} type="audio/mpeg" />
-              </audio>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {music.map((track) => (
+        <div key={track.id} className="xp-panel">
+          <h3 className="text-lg font-bold text-blue-900 mb-2">{track.title}</h3>
+          <p className="text-gray-700 mb-3 text-sm">{track.description}</p>
+          <div className="space-y-2">
+            <span className="text-xs text-gray-600 block">Album ID: {track.album}</span>
+            {track.category && track.category.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {track.category.map((cat, i) => (
+                  <span key={i} className="xp-badge">
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            )}
+            <audio controls className="w-full mt-2">
+              <source src={`${API_URL}${track.tune}`} type="audio/mpeg" />
+            </audio>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
-
-// Найдите функцию AlbumsPage и замените на эту:
 
 const AlbumsPage = ({ albums, token, fetchAlbums }) => {
   const [showCreateAlbum, setShowCreateAlbum] = useState(false);
@@ -592,69 +569,70 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-white">Albums</h2>
+      <div className="mb-4">
         <button
           onClick={() => setShowCreateAlbum(!showCreateAlbum)}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2"
+          className="xp-button"
         >
-          <Plus className="w-5 h-5" />
-          New Album
+          ➕ New Album
         </button>
       </div>
 
       {showCreateAlbum && (
-        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 mb-6">
-          <input
-            type="text"
-            placeholder="Album name"
-            value={albumName}
-            onChange={(e) => setAlbumName(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setAlbumCover(e.target.files[0])}
-            className="w-full px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white border border-white border-opacity-30 mb-4"
-          />
-          {message && <p className="text-white mb-4">{message}</p>}
-          <button
-            onClick={createAlbum}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition"
-          >
-            Create Album
-          </button>
+        <div className="xp-panel mb-4">
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="Album name"
+              value={albumName}
+              onChange={(e) => setAlbumName(e.target.value)}
+              className="xp-input"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setAlbumCover(e.target.files[0])}
+              className="xp-file-input"
+            />
+            {message && (
+              <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
+                {message}
+              </div>
+            )}
+            <button
+              onClick={createAlbum}
+              className="xp-button w-full"
+            >
+              Create Album
+            </button>
+          </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {albums.map((album) => (
-          <div key={album.id} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl overflow-hidden border border-white border-opacity-20 hover:bg-opacity-20 transition">
+          <div key={album.id} className="xp-panel">
             {album.cover_album && (
               <img 
                 src={`${API_URL}${album.cover_album}`} 
                 alt={album.name} 
-                className="w-full h-48 object-cover"
+                className="w-full h-32 object-cover mb-3 border-2 border-gray-400"
                 onError={(e) => {
                   e.target.style.display = 'none';
                 }}
               />
             )}
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-white mb-2">{album.name}</h3>
-              <p className="text-gray-400 text-sm mb-2">by {album.creator_nickname}</p>
-              <p className="text-gray-400 text-sm mb-4">{new Date(album.create_time).toLocaleDateString()}</p>
-              <div className="space-y-1">
-                <p className="text-gray-400 text-sm font-semibold mb-2">Tracks:</p>
-                {album.tracks && album.tracks.length > 0 ? (
-                  album.tracks.map((track, i) => (
-                    <p key={i} className="text-gray-300 text-sm">• {track}</p>
-                  ))
-                ) : (
-                  <p className="text-gray-400 text-sm italic">No tracks yet</p>
-                )}
-              </div>
+            <h3 className="text-lg font-bold text-blue-900 mb-1">{album.name}</h3>
+            <p className="text-gray-600 text-sm mb-2">📅 {new Date(album.create_time).toLocaleDateString()}</p>
+            <div className="space-y-1">
+              <p className="text-gray-700 text-sm font-bold">Tracks:</p>
+              {album.tracks && album.tracks.length > 0 ? (
+                album.tracks.map((track, i) => (
+                  <p key={i} className="text-gray-700 text-xs">• {track}</p>
+                ))
+              ) : (
+                <p className="text-gray-500 text-xs italic">No tracks yet</p>
+              )}
             </div>
           </div>
         ))}
@@ -663,10 +641,146 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
   );
 };
 
+const CommunityPage = ({ threads, token, fetchThreads, user }) => {
+  const [showNewThread, setShowNewThread] = useState(false);
+  const [threadTitle, setThreadTitle] = useState('');
+  const [threadText, setThreadText] = useState('');
+  const [message, setMessage] = useState('');
+  const [expandedThread, setExpandedThread] = useState(null);
+
+  const createThread = async () => {
+    if (!threadTitle || !threadText) {
+      setMessage('❌ Please fill in all fields');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/comm/threads/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title: threadTitle, text: threadText })
+      });
+
+      if (res.ok) {
+        setMessage('✅ Thread created!');
+        setThreadTitle('');
+        setThreadText('');
+        setShowNewThread(false);
+        fetchThreads();
+      } else {
+        setMessage('❌ Failed to create thread');
+      }
+    } catch (err) {
+      setMessage('❌ Connection error');
+    }
+  };
+
+  const likeThread = async (threadId) => {
+    try {
+      const res = await fetch(`${API_URL}/comm/ThreadLike/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ where: threadId })
+      });
+
+      if (res.ok) {
+        fetchThreads();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="mb-4">
+        <button
+          onClick={() => setShowNewThread(!showNewThread)}
+          className="xp-button"
+        >
+          ➕ New Thread
+        </button>
+      </div>
+
+      {showNewThread && (
+        <div className="xp-panel mb-4">
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Title:</label>
+              <input
+                type="text"
+                placeholder="Thread title"
+                value={threadTitle}
+                onChange={(e) => setThreadTitle(e.target.value)}
+                className="xp-input"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Message:</label>
+              <textarea
+                placeholder="What's on your mind?"
+                value={threadText}
+                onChange={(e) => setThreadText(e.target.value)}
+                rows="4"
+                className="xp-input"
+              />
+            </div>
+            {message && (
+              <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
+                {message}
+              </div>
+            )}
+            <button
+              onClick={createThread}
+              className="xp-button w-full"
+            >
+              Create Thread
+            </button>
+          </div>
+        </div>
+      )}
+
+      {threads.map((thread) => (
+        <div key={thread.id} className="xp-panel">
+          <h3 className="text-lg font-bold text-blue-900 mb-2">{thread.title}</h3>
+          <p className="text-gray-700 text-sm mb-3">{thread.text}</p>
+          <div className="flex items-center gap-4 text-xs text-gray-600">
+            <button
+              onClick={() => likeThread(thread.id)}
+              className="xp-button-small flex items-center gap-1"
+            >
+              <Heart className="w-3 h-3" />
+              {thread.likes}
+            </button>
+            <button
+              onClick={() => setExpandedThread(expandedThread === thread.id ? null : thread.id)}
+              className="xp-button-small flex items-center gap-1"
+            >
+              <MessageCircle className="w-3 h-3" />
+              {thread.comments?.length || 0}
+            </button>
+          </div>
+          {expandedThread === thread.id && (
+            <ThreadComments threadId={thread.id} token={token} comments={thread.comments} fetchThreads={fetchThreads} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
   const [comment, setComment] = useState('');
 
   const postComment = async () => {
+    if (!comment) return;
+
     try {
       const res = await fetch(`${API_URL}/comm/comments/`, {
         method: 'POST',
@@ -687,7 +801,7 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
   };
 
   return (
-    <div className="ml-8 mt-4 space-y-3">
+    <div className="mt-4 pl-6 space-y-3 border-l-4 border-blue-300">
       <div className="flex gap-2">
         <input
           type="text"
@@ -695,19 +809,20 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && postComment()}
-          className="flex-1 px-4 py-2 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="xp-input text-xs"
+          style={{ fontSize: '12px' }}
         />
         <button
           onClick={postComment}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition"
+          className="xp-button-small"
         >
-          <Send className="w-5 h-5" />
+          <Send className="w-3 h-3" />
         </button>
       </div>
 
       {comments && comments.map((c, i) => (
-        <div key={i} className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
-          <p className="text-gray-300">{c}</p>
+        <div key={i} className="xp-panel text-xs" style={{ padding: '8px' }}>
+          <p className="text-gray-700">{c}</p>
         </div>
       ))}
     </div>

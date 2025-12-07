@@ -1,17 +1,519 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+/* Windows XP Theme Styles - Enhanced Version */
+* {
+  box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-} */
+body {
+  font-family: 'Tahoma', 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Desktop Background - Iconic XP Bliss */
+.xp-desktop {
+  background: linear-gradient(180deg, #5A8DD3 0%, #4F83CC 25%, #3F6EB5 50%, #2D5AA0 75%, #1D4785 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+.xp-desktop::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(135, 206, 250, 0.15) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.xp-desktop > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Taskbar - Classic XP Blue */
+.xp-taskbar {
+  background: linear-gradient(180deg, #245EDC 0%, #3F7EDB 10%, #2758B0 50%, #1941A5 90%, #0831D9 100%);
+  border-top: 1px solid #6BA4FF;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Start Button - The Famous Green Start */
+.xp-start-button {
+  background: linear-gradient(180deg, #73D216 0%, #5AB910 50%, #4A9A0B 100%);
+  border: 2px solid #2E7D0E;
+  border-radius: 0 12px 12px 0;
+  padding: 8px 20px 8px 16px;
+  box-shadow: 
+    inset 1px 1px 2px rgba(255, 255, 255, 0.5),
+    2px 2px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.xp-start-button:hover {
+  background: linear-gradient(180deg, #85E428 0%, #6BCB22 50%, #5AB910 100%);
+  box-shadow: 
+    inset 1px 1px 2px rgba(255, 255, 255, 0.6),
+    2px 2px 8px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.xp-start-button:active {
+  background: linear-gradient(180deg, #4A9A0B 0%, #3D8008 50%, #2E7D0E 100%);
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
+    1px 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
+}
+
+/* Navigation Buttons - Enhanced */
+.xp-nav-button {
+  background: linear-gradient(180deg, #5CA0FF 0%, #3F7EDB 50%, #2758B0 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.xp-nav-button:hover {
+  background: linear-gradient(180deg, #7DB8FF 0%, #5A9FEB 50%, #3768C0 100%);
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.xp-nav-button-active {
+  background: linear-gradient(180deg, #FFE68C 0%, #FFD04A 50%, #FFAA00 100%);
+  color: #000;
+  border: 1px solid #CC8800;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Window - Beautiful 3D Effect */
+.xp-window {
+  background: #ECE9D8;
+  border: 3px solid;
+  border-color: #0055E3 #0055E3 #0831D9 #0831D9;
+  border-radius: 8px 8px 4px 4px;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  animation: windowAppear 0.3s ease-out;
+}
+
+@keyframes windowAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Window Title Bar - Glossy Blue */
+.xp-window-title {
+  background: linear-gradient(180deg, #3F8CF3 0%, #1A6BEB 50%, #0050DC 100%);
+  padding: 8px 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #0042CC;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.xp-window-controls {
+  display: flex;
+  gap: 3px;
+}
+
+.xp-control {
+  background: linear-gradient(180deg, #6BB4FF 0%, #4399FF 50%, #0059E3 100%);
+  width: 28px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.xp-control:hover {
+  background: linear-gradient(180deg, #8AC8FF 0%, #5AAAFF 50%, #1A6AF3 100%);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.xp-control:active {
+  background: linear-gradient(180deg, #0059E3 0%, #0042CC 50%, #002E99 100%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  transform: translateY(1px);
+}
+
+/* Window Content - Textured Background */
+.xp-window-content {
+  padding: 20px;
+  background: linear-gradient(135deg, #ECE9D8 0%, #E8E5D0 100%);
+  min-height: 450px;
+  position: relative;
+}
+
+.xp-window-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px);
+  pointer-events: none;
+}
+
+/* Panel (Group Box) - Enhanced 3D */
+.xp-panel {
+  background: linear-gradient(135deg, #F7F5EC 0%, #F0EFE7 50%, #E8E5D0 100%);
+  border: 2px solid;
+  border-color: #D4D0C8 #FEFEFE #FEFEFE #D4D0C8;
+  border-radius: 3px;
+  padding: 16px;
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.1),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.08);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.xp-panel:hover {
+  box-shadow: 
+    inset 1px 1px 0 rgba(0, 0, 0, 0.1),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Button - Classic Windows Style */
+.xp-button {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9F8F4 30%, #E7E5D8 70%, #D2CFC0 100%);
+  border: 2px solid;
+  border-color: #003C74 #87CEEB #87CEEB #003C74;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.15s ease;
+  text-align: center;
+  position: relative;
+}
+
+.xp-button::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+  border-radius: 2px 2px 0 0;
+  pointer-events: none;
+}
+
+.xp-button:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFEF8 30%, #F0EFE7 70%, #DDD9C8 100%);
+  border-color: #0055FF #B0E0FF #B0E0FF #0055FF;
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.xp-button:active {
+  background: linear-gradient(180deg, #D2CFC0 0%, #C5C2B3 50%, #B8B5A6 100%);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateY(1px);
+  border-color: #002E66 #6BB4FF #6BB4FF #002E66;
+}
+
+.xp-button:disabled {
+  background: linear-gradient(180deg, #E8E5D0 0%, #D4D0C8 100%);
+  color: #999;
+  border-color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.xp-button-small {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9F8F4 50%, #E7E5D8 100%);
+  border: 1px solid;
+  border-color: #003C74 #B8CFE6 #B8CFE6 #003C74;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.xp-button-small:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFEF8 50%, #F0EFE7 100%);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform: translateY(-1px);
+}
+
+/* Input Fields - Clean and Inset */
+.xp-input {
+  background: white;
+  border: 2px solid;
+  border-color: #7F9DB9 #E0E9F5 #E0E9F5 #7F9DB9;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: 'Tahoma', sans-serif;
+  color: #000;
+  width: 100%;
+  box-shadow: 
+    inset 1px 1px 2px rgba(0, 0, 0, 0.1),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.xp-input:focus {
+  outline: none;
+  border-color: #0055FF #9DCDFF #9DCDFF #0055FF;
+  box-shadow: 
+    inset 1px 1px 2px rgba(0, 0, 0, 0.1),
+    0 0 0 2px rgba(0, 85, 255, 0.2);
+  background: #FEFFFE;
+}
+
+.xp-input:disabled {
+  background: #E8E5D0;
+  color: #999;
+}
+
+/* File Input */
+.xp-file-input {
+  background: white;
+  border: 2px solid;
+  border-color: #7F9DB9 #E0E9F5 #E0E9F5 #7F9DB9;
+  padding: 8px;
+  font-size: 13px;
+  font-family: 'Tahoma', sans-serif;
+  width: 100%;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.xp-file-input::-webkit-file-upload-button {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9F8F4 50%, #E7E5D8 100%);
+  border: 1px solid;
+  border-color: #5A5A5A #D4D0C8 #D4D0C8 #5A5A5A;
+  padding: 6px 16px;
+  margin-right: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.xp-file-input::-webkit-file-upload-button:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFEF8 50%, #F0EFE7 100%);
+}
+
+/* Message Box - Colorful Alerts */
+.xp-message {
+  background: linear-gradient(135deg, #FFFFDD 0%, #FFFFCC 100%);
+  border: 2px solid #CC9900;
+  padding: 14px;
+  font-size: 13px;
+  border-radius: 3px;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.xp-message-success {
+  background: linear-gradient(135deg, #E8FFE8 0%, #CCFFCC 100%);
+  border-color: #00AA00;
+  color: #006600;
+}
+
+.xp-message-error {
+  background: linear-gradient(135deg, #FFE8E8 0%, #FFCCCC 100%);
+  border-color: #CC0000;
+  color: #990000;
+}
+
+/* Badge - Stylish Tags */
+.xp-badge {
+  background: linear-gradient(180deg, #7DB8FF 0%, #5A9FEB 50%, #3768C0 100%);
+  color: white;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  border: 1px solid #2758B0;
+  border-radius: 3px;
+  display: inline-block;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Audio Controls */
+audio {
+  background: linear-gradient(135deg, #E8E5D0 0%, #D4D0C8 100%);
+  border: 2px solid;
+  border-color: #7F7F7F #FEFEFE #FEFEFE #7F7F7F;
+  border-radius: 3px;
+  padding: 6px;
+  width: 100%;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Scrollbar - Classic XP Style */
+::-webkit-scrollbar {
+  width: 18px;
+  height: 18px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(90deg, #E8E5D0 0%, #F0EFE7 50%, #E8E5D0 100%);
+  border: 1px solid #ACA899;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9F8F4 30%, #E7E5D8 70%, #D2CFC0 100%);
+  border: 1px solid;
+  border-color: #5A5A5A #D4D0C8 #D4D0C8 #5A5A5A;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFEF8 30%, #F0EFE7 70%, #DDD9C8 100%);
+}
+
+::-webkit-scrollbar-button {
+  background: linear-gradient(180deg, #F9F8F4 0%, #E7E5D8 50%, #D2CFC0 100%);
+  border: 1px solid;
+  border-color: #FEFEFE #5A5A5A #5A5A5A #FEFEFE;
+  height: 18px;
+  width: 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-button:hover {
+  background: linear-gradient(180deg, #FFFEF8 0%, #F0EFE7 50%, #DDD9C8 100%);
+}
+
+/* Select dropdown */
+select.xp-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23000' d='M0 3 L6 9 L12 3 Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+/* Textarea */
+textarea.xp-input {
+  resize: vertical;
+  min-height: 80px;
+  font-family: 'Tahoma', sans-serif;
+  line-height: 1.5;
+}
+
+/* Image borders */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  border-radius: 2px;
+}
+
+/* Grid improvements */
+.grid {
+  gap: 16px;
+}
+
+/* Loading spinner */
+@keyframes xp-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.xp-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #D2CFC0;
+  border-top: 3px solid #0055FF;
+  border-radius: 50%;
+  animation: xp-spin 1s linear infinite;
+}
+
+/* Hover effects for interactive elements */
+.xp-panel:hover .xp-badge {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}

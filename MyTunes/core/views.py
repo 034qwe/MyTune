@@ -37,8 +37,12 @@ class MyMusicAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
 class AlbumAPIVIew(generics.ListCreateAPIView):
+    def get_queryset(self):
+
+        return Album.objects.filter(release=True)
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer  
+    
 
     def perform_create(self, serializer):
         creator = Creator.objects.get(account=self.request.user)

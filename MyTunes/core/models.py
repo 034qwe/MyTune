@@ -30,6 +30,7 @@ class Album(models.Model):
     creator = models.ForeignKey(Creator,on_delete=models.CASCADE)
     cover_album = models.ImageField(upload_to=user_covers_path,null=True,)
     name = models.TextField(max_length=300)
+    release = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('cr', kwargs={'creator_slug':self.creator})
