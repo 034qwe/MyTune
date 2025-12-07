@@ -61,15 +61,27 @@ const App = () => {
     }
   };
 
-  const fetchAlbums = async () => {
-    try {
-      const res = await fetch(`${API_URL}/core/albums/`);
+  // Replace the fetchAlbums function in your App component with this:
+
+const fetchAlbums = async () => {
+  try {
+    const res = await fetch(`${API_URL}/core/albums/`, {
+      headers: token ? { 'Authorization': `Token ${token}` } : {}
+    });
+    
+    if (res.ok) {
       const data = await res.json();
-      setAlbums(data);
-    } catch (err) {
-      console.error(err);
+      // Ensure data is an array
+      setAlbums(Array.isArray(data) ? data : []);
+    } else {
+      console.error('Failed to fetch albums:', res.status);
+      setAlbums([]);
     }
-  };
+  } catch (err) {
+    console.error('Error fetching albums:', err);
+    setAlbums([]);
+  }
+};
 
   const fetchThreads = async () => {
     try {
@@ -102,29 +114,30 @@ const App = () => {
               <span className="font-bold text-white">MyTunes</span>
             </div>
           </div>
-          
-          <nav className="hidden md:flex gap-2">
-            <button onClick={() => setCurrentPage('music')} className={`xp-nav-button ${currentPage === 'music' ? 'xp-nav-button-active' : ''}`}>
-              Music
-            </button>
-            <button onClick={() => setCurrentPage('albums')} className={`xp-nav-button ${currentPage === 'albums' ? 'xp-nav-button-active' : ''}`}>
-              Albums
-            </button>
-            <button onClick={() => setCurrentPage('community')} className={`xp-nav-button ${currentPage === 'community' ? 'xp-nav-button-active' : ''}`}>
-              Community
-            </button>
-            {!creator && (
-              <button onClick={() => setCurrentPage('become-creator')} className={`xp-nav-button ${currentPage === 'become-creator' ? 'xp-nav-button-active' : ''}`}>
-                Become Creator
-              </button>
-            )}
-            {creator && (
-              <button onClick={() => setCurrentPage('upload')} className={`xp-nav-button ${currentPage === 'upload' ? 'xp-nav-button-active' : ''}`}>
-                Upload
-              </button>
-            )}
-          </nav>
-
+                <nav className="hidden md:flex gap-2">
+                  <button onClick={() => setCurrentPage('music')} className={`xp-nav-button ${currentPage === 'music' ? 'xp-nav-button-active' : ''}`}>
+                    Music
+                  </button>
+                  <button onClick={() => setCurrentPage('albums')} className={`xp-nav-button ${currentPage === 'albums' ? 'xp-nav-button-active' : ''}`}>
+                    Albums
+                  </button>
+                  <button onClick={() => setCurrentPage('community')} className={`xp-nav-button ${currentPage === 'community' ? 'xp-nav-button-active' : ''}`}>
+                    Community
+                  </button>
+                  <button onClick={() => setCurrentPage('profile')} className={`xp-nav-button ${currentPage === 'profile' ? 'xp-nav-button-active' : ''}`}>
+                    Profile
+                  </button>
+                  {!creator && (
+                    <button onClick={() => setCurrentPage('become-creator')} className={`xp-nav-button ${currentPage === 'become-creator' ? 'xp-nav-button-active' : ''}`}>
+                      Become Creator
+                    </button>
+                  )}
+                  {creator && (
+                    <button onClick={() => setCurrentPage('upload')} className={`xp-nav-button ${currentPage === 'upload' ? 'xp-nav-button-active' : ''}`}>
+                      Upload
+                    </button>
+                  )}
+                </nav>
           <div className="flex items-center gap-3">
             <span className="text-white hidden md:block font-bold">{user?.username}</span>
             <button onClick={logout} className="xp-button-small">
@@ -141,6 +154,7 @@ const App = () => {
               {currentPage === 'music' && '🎵 All Music'}
               {currentPage === 'albums' && '💿 Albums'}
               {currentPage === 'community' && '💬 Community'}
+              {currentPage === 'profile' && '👤 My Profile'}
               {currentPage === 'become-creator' && '⭐ Become Creator'}
               {currentPage === 'upload' && '📤 Upload Track'}
             </span>
@@ -154,6 +168,7 @@ const App = () => {
             {currentPage === 'music' && <MusicPage music={music} token={token} />}
             {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} />}
             {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} />}
+            {currentPage === 'profile' && <ProfilePage token={token} user={user} />}
             {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} />}
             {currentPage === 'upload' && <UploadPage token={token} albums={albums} fetchMusic={fetchMusic} />}
           </div>
@@ -531,7 +546,9 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
   const [showCreateAlbum, setShowCreateAlbum] = useState(false);
   const [albumName, setAlbumName] = useState('');
   const [albumCover, setAlbumCover] = useState(null);
+  const [release, setRelease] = useState(false);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const createAlbum = async () => {
     if (!albumName) {
@@ -539,8 +556,12 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
       return;
     }
 
+    setLoading(true);
+    setMessage('');
+
     const formData = new FormData();
     formData.append('name', albumName);
+    formData.append('release', release);
     if (albumCover) {
       formData.append('cover_album', albumCover);
     }
@@ -556,14 +577,22 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
         setMessage('✅ Album created!');
         setAlbumName('');
         setAlbumCover(null);
+        setRelease(false);
         setShowCreateAlbum(false);
+        // Clear file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
         fetchAlbums();
       } else {
         const data = await res.json();
-        setMessage('❌ ' + (data.detail || 'Error creating album'));
+        console.error('Album creation error:', data);
+        setMessage('❌ ' + (data.detail || data.name?.[0] || 'Error creating album'));
       }
     } catch (err) {
+      console.error('Connection error:', err);
       setMessage('❌ Connection error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -581,62 +610,106 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
       {showCreateAlbum && (
         <div className="xp-panel mb-4">
           <div className="space-y-3">
-            <input
-              type="text"
-              placeholder="Album name"
-              value={albumName}
-              onChange={(e) => setAlbumName(e.target.value)}
-              className="xp-input"
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setAlbumCover(e.target.files[0])}
-              className="xp-file-input"
-            />
+            <div>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Album Name: *</label>
+              <input
+                type="text"
+                placeholder="Enter album name"
+                value={albumName}
+                onChange={(e) => setAlbumName(e.target.value)}
+                className="xp-input"
+                disabled={loading}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Album Cover:</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setAlbumCover(e.target.files[0])}
+                className="xp-file-input"
+                disabled={loading}
+              />
+              {albumCover && (
+                <p className="text-sm text-gray-700 mt-2">📷 Selected: {albumCover.name}</p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="release-checkbox"
+                checked={release}
+                onChange={(e) => setRelease(e.target.checked)}
+                className="w-4 h-4"
+                disabled={loading}
+              />
+              <label htmlFor="release-checkbox" className="text-sm font-bold text-gray-700">
+                Release album publicly
+              </label>
+            </div>
+
             {message && (
               <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
                 {message}
               </div>
             )}
+            
             <button
               onClick={createAlbum}
+              disabled={loading}
               className="xp-button w-full"
             >
-              Create Album
+              {loading ? 'Creating...' : '💿 Create Album'}
             </button>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {albums.map((album) => (
-          <div key={album.id} className="xp-panel">
-            {album.cover_album && (
-              <img 
-                src={`${API_URL}${album.cover_album}`} 
-                alt={album.name} 
-                className="w-full h-32 object-cover mb-3 border-2 border-gray-400"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            )}
-            <h3 className="text-lg font-bold text-blue-900 mb-1">{album.name}</h3>
-            <p className="text-gray-600 text-sm mb-2">📅 {new Date(album.create_time).toLocaleDateString()}</p>
-            <div className="space-y-1">
-              <p className="text-gray-700 text-sm font-bold">Tracks:</p>
-              {album.tracks && album.tracks.length > 0 ? (
-                album.tracks.map((track, i) => (
-                  <p key={i} className="text-gray-700 text-xs">• {track}</p>
-                ))
-              ) : (
-                <p className="text-gray-500 text-xs italic">No tracks yet</p>
+      {albums.length === 0 ? (
+        <div className="xp-panel text-center py-8">
+          <p className="text-gray-600">No albums available yet. Create your first album!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {albums.map((album) => (
+            <div key={album.id} className="xp-panel">
+              {album.cover_album && (
+                <img 
+                  src={`${API_URL}${album.cover_album}`} 
+                  alt={album.name} 
+                  className="w-full h-48 object-cover mb-3 border-2 border-gray-400"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
               )}
+              <h3 className="text-lg font-bold text-blue-900 mb-1">{album.name}</h3>
+              <p className="text-gray-600 text-sm mb-2">
+                📅 {new Date(album.create_time).toLocaleDateString()}
+              </p>
+              {album.release && (
+                <span className="xp-badge mb-2 inline-block">🌐 Released</span>
+              )}
+              <div className="space-y-1 mt-2">
+                <p className="text-gray-700 text-sm font-bold">Tracks ({album.tracks?.length || 0}):</p>
+                {album.tracks && album.tracks.length > 0 ? (
+                  <div className="max-h-32 overflow-y-auto">
+                    {album.tracks.map((track, i) => (
+                      <p key={i} className="text-gray-700 text-xs py-1 border-b border-gray-300 last:border-0">
+                        {i + 1}. {track}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-xs italic">No tracks yet</p>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -825,6 +898,297 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
           <p className="text-gray-700">{c}</p>
         </div>
       ))}
+    </div>
+  );
+};
+
+// Add this ProfilePage component to your App.js
+
+const ProfilePage = ({ token, user }) => {
+  const [loading, setLoading] = useState(true);
+  const [creatorInfo, setCreatorInfo] = useState(null);
+  const [myAlbums, setMyAlbums] = useState([]);
+  const [myMusic, setMyMusic] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  useEffect(() => {
+    if (token) {
+      fetchProfileData();
+    }
+  }, [token]);
+
+  const fetchProfileData = async () => {
+    setLoading(true);
+    try {
+      // Fetch my music
+      const musicRes = await fetch(`${API_URL}/core/mymusic/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (musicRes.ok) {
+        const musicData = await musicRes.json();
+        setMyMusic(Array.isArray(musicData) ? musicData : []);
+        
+        // If user has music, they are a creator
+        if (musicData.length > 0) {
+          // Get creator info from the first track's owner
+          setCreatorInfo({
+            nickname: musicData[0].owner,
+            hasMusic: true
+          });
+        }
+      }
+
+      // Fetch albums (try to get creator's albums)
+      const albumsRes = await fetch(`${API_URL}/core/albums/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (albumsRes.ok) {
+        const albumsData = await albumsRes.json();
+        // Filter albums by current user if possible
+        setMyAlbums(Array.isArray(albumsData) ? albumsData : []);
+      }
+
+    } catch (err) {
+      console.error('Error fetching profile data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="xp-loading"></div>
+        <span className="ml-3 text-gray-700 font-bold">Loading profile...</span>
+      </div>
+    );
+  }
+
+  const isCreator = myMusic.length > 0 || creatorInfo;
+
+  return (
+    <div className="space-y-6">
+      {/* Profile Header */}
+      <div className="xp-panel">
+        <div className="flex items-start gap-6">
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+            {user?.username?.charAt(0).toUpperCase() || 'U'}
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-blue-900 mb-2">
+              {user?.username || 'User'}
+            </h2>
+            {isCreator && creatorInfo && (
+              <div className="space-y-1">
+                <span className="xp-badge">⭐ Creator</span>
+                {creatorInfo.nickname && (
+                  <p className="text-gray-700 text-sm mt-2">
+                    <strong>Creator Name:</strong> {creatorInfo.nickname}
+                  </p>
+                )}
+              </div>
+            )}
+            {!isCreator && (
+              <p className="text-gray-600 text-sm">Music Listener</p>
+            )}
+            <div className="mt-4 grid grid-cols-3 gap-4">
+              <div className="xp-panel" style={{ padding: '12px', background: 'linear-gradient(135deg, #E8F4FF 0%, #D0E8FF 100%)' }}>
+                <p className="text-2xl font-bold text-blue-900">{myMusic.length}</p>
+                <p className="text-xs text-gray-600">Tracks</p>
+              </div>
+              <div className="xp-panel" style={{ padding: '12px', background: 'linear-gradient(135deg, #FFE8F4 0%, #FFD0E8 100%)' }}>
+                <p className="text-2xl font-bold text-blue-900">{myAlbums.length}</p>
+                <p className="text-xs text-gray-600">Albums</p>
+              </div>
+              <div className="xp-panel" style={{ padding: '12px', background: 'linear-gradient(135deg, #E8FFE8 0%, #D0FFD0 100%)' }}>
+                <p className="text-2xl font-bold text-blue-900">{user?.id || 0}</p>
+                <p className="text-xs text-gray-600">User ID</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b-2 border-gray-400 pb-2">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`xp-nav-button ${activeTab === 'overview' ? 'xp-nav-button-active' : ''}`}
+        >
+          📊 Overview
+        </button>
+        <button
+          onClick={() => setActiveTab('music')}
+          className={`xp-nav-button ${activeTab === 'music' ? 'xp-nav-button-active' : ''}`}
+        >
+          🎵 My Music ({myMusic.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('albums')}
+          className={`xp-nav-button ${activeTab === 'albums' ? 'xp-nav-button-active' : ''}`}
+        >
+          💿 My Albums ({myAlbums.length})
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="space-y-4">
+          <div className="xp-panel">
+            <h3 className="text-lg font-bold text-blue-900 mb-4">Account Information</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between py-2 border-b border-gray-300">
+                <span className="font-bold text-gray-700">Username:</span>
+                <span className="text-gray-600">{user?.username}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-gray-300">
+                <span className="font-bold text-gray-700">Email:</span>
+                <span className="text-gray-600">{user?.email || 'Not provided'}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-gray-300">
+                <span className="font-bold text-gray-700">Account Type:</span>
+                <span className="text-gray-600">{isCreator ? '⭐ Creator' : '👤 Listener'}</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="font-bold text-gray-700">Total Tracks:</span>
+                <span className="text-gray-600">{myMusic.length}</span>
+              </div>
+            </div>
+          </div>
+
+          {isCreator && (
+            <div className="xp-panel" style={{ background: 'linear-gradient(135deg, #FFF8E8 0%, #FFE8CC 100%)' }}>
+              <h3 className="text-lg font-bold text-orange-900 mb-2">✨ Creator Stats</h3>
+              <p className="text-sm text-gray-700">
+                You're sharing your music with the world! Keep creating and uploading amazing tracks.
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="bg-white bg-opacity-50 p-3 rounded border border-orange-300">
+                  <p className="text-xl font-bold text-orange-900">{myMusic.length}</p>
+                  <p className="text-xs text-gray-600">Published Tracks</p>
+                </div>
+                <div className="bg-white bg-opacity-50 p-3 rounded border border-orange-300">
+                  <p className="text-xl font-bold text-orange-900">{myAlbums.length}</p>
+                  <p className="text-xs text-gray-600">Created Albums</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isCreator && (
+            <div className="xp-panel text-center py-8" style={{ background: 'linear-gradient(135deg, #E8F4FF 0%, #D0E8FF 100%)' }}>
+              <h3 className="text-lg font-bold text-blue-900 mb-2">🎤 Become a Creator</h3>
+              <p className="text-sm text-gray-700 mb-4">
+                Share your music with the world! Become a creator to upload your tracks and albums.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'music' && (
+        <div>
+          {myMusic.length === 0 ? (
+            <div className="xp-panel text-center py-8">
+              <p className="text-gray-600">You haven't uploaded any music yet.</p>
+              {!isCreator && (
+                <p className="text-gray-500 text-sm mt-2">Become a creator to start uploading!</p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {myMusic.map((track) => (
+                <div key={track.id} className="xp-panel">
+                  <div className="flex items-start gap-3">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded flex items-center justify-center text-white text-2xl flex-shrink-0">
+                      🎵
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold text-blue-900 truncate">{track.title}</h3>
+                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">{track.description || 'No description'}</p>
+                      {track.category && track.category.length > 0 && (
+                        <div className="flex gap-1 flex-wrap mb-2">
+                          {track.category.map((cat, i) => (
+                            <span key={i} className="xp-badge text-xs">
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <audio controls className="w-full" style={{ height: '32px' }}>
+                        <source src={`${API_URL}${track.tune}`} type="audio/mpeg" />
+                      </audio>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'albums' && (
+        <div>
+          {myAlbums.length === 0 ? (
+            <div className="xp-panel text-center py-8">
+              <p className="text-gray-600">You haven't created any albums yet.</p>
+              {isCreator && (
+                <p className="text-gray-500 text-sm mt-2">Go to the Albums page to create your first album!</p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myAlbums.map((album) => (
+                <div key={album.id} className="xp-panel">
+                  {album.cover_album && (
+                    <img 
+                      src={`${API_URL}${album.cover_album}`} 
+                      alt={album.name} 
+                      className="w-full h-40 object-cover mb-3 border-2 border-gray-400 rounded"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  {!album.cover_album && (
+                    <div className="w-full h-40 bg-gradient-to-br from-blue-400 to-purple-600 mb-3 flex items-center justify-center text-white text-5xl rounded border-2 border-gray-400">
+                      💿
+                    </div>
+                  )}
+                  <h3 className="text-base font-bold text-blue-900 mb-1">{album.name}</h3>
+                  <p className="text-xs text-gray-600 mb-2">
+                    📅 {new Date(album.create_time).toLocaleDateString()}
+                  </p>
+                  {album.release && (
+                    <span className="xp-badge text-xs mb-2 inline-block">🌐 Released</span>
+                  )}
+                  {!album.release && (
+                    <span className="xp-badge text-xs mb-2 inline-block" style={{ background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)', borderColor: '#CC8800' }}>
+                      🔒 Private
+                    </span>
+                  )}
+                  <div className="space-y-1 mt-2">
+                    <p className="text-xs font-bold text-gray-700">
+                      Tracks ({album.tracks?.length || 0}):
+                    </p>
+                    {album.tracks && album.tracks.length > 0 ? (
+                      <div className="max-h-24 overflow-y-auto">
+                        {album.tracks.map((track, i) => (
+                          <p key={i} className="text-xs text-gray-700 py-1 border-b border-gray-200 last:border-0">
+                            {i + 1}. {track}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-500 italic">No tracks yet</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
