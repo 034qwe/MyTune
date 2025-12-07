@@ -29,7 +29,8 @@ class CreatorSerializer(serializers.ModelSerializer):
 
 class AlbumSerializer(serializers.ModelSerializer):
     tracks = serializers.SerializerMethodField()
-
+    creator =serializers.PrimaryKeyRelatedField(read_only=True)
+    
     def get_tracks(self, obj):
         return list(obj.music_set.values_list('title', flat=True))
     
@@ -39,3 +40,4 @@ class AlbumSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
     
+ 
