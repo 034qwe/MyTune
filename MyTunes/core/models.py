@@ -56,7 +56,7 @@ class Category_Song(models.Model):
     which_music = models.OneToOneField(Music,on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.which_music
+        return self.which_music.title
     
 
 class Category(models.Model):
@@ -70,8 +70,8 @@ class Category_Bridge(models.Model):
     song = models.ForeignKey(Category_Song,on_delete=models.CASCADE)
     cat = models.ForeignKey(Category,on_delete=models.CASCADE)
 
-    # def __srt__(self):
-    #     return self.song__which_music
+    def __srt__(self):
+        return self.song__which_music.title
     
     
 

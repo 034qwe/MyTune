@@ -21,7 +21,7 @@ class LikeThreadSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class LikeCommentSerializer(serializers.ModelSerializer):
-   
+    who = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Like_Comment
@@ -39,8 +39,17 @@ class ThreadSerializer(serializers.ModelSerializer):
 
 
     def get_comments(self, obj):
-        return [f'{i.comment} ({len([i for i in Like_Comment.objects.filter(where__about_w__pk = obj.pk)])} likes)' for i in Comment.objects.filter(about_w__pk =obj.pk ) ]
 
+        comments_data = []
+        for comment in Comment.objects.filter(about_w__pk = obj.pk):
+            like_count = len([i for i in Like_Comment.objects.filter(where__pk = comment.pk)])
+            comments_data.append({
+                'id': comment.id,
+                'text': comment.comment,
+                'likes': like_count
+            })
+        return comments_data
+    
     class Meta:
         model = Thread
         fields = '__all__'

@@ -850,6 +850,7 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
 
 const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
   const [comment, setComment] = useState('');
+  const [likingComment, setLikingComment] = useState(null);
 
   const postComment = async () => {
     if (!comment) return;
@@ -873,6 +874,31 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
     }
   };
 
+  const likeComment = async (commentId) => {
+    setLikingComment(commentId);
+    
+    try {
+      const res = await fetch(`${API_URL}/comm/CommentLike/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          where: commentId
+        })
+      });
+
+      if (res.ok) {
+        fetchThreads();
+      }
+    } catch (err) {
+      console.error('Error liking comment:', err);
+    } finally {
+      setLikingComment(null);
+    }
+  };
+
   return (
     <div className="mt-4 pl-6 space-y-3 border-l-4 border-blue-300">
       <div className="flex gap-2">
@@ -888,14 +914,27 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
         <button
           onClick={postComment}
           className="xp-button-small"
+          title="Send comment"
         >
           <Send className="w-3 h-3" />
         </button>
       </div>
 
-      {comments && comments.map((c, i) => (
-        <div key={i} className="xp-panel text-xs" style={{ padding: '8px' }}>
-          <p className="text-gray-700">{c}</p>
+      {comments && comments.map((c) => (
+        <div key={c.id} className="xp-panel" style={{ padding: '8px' }}>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-gray-700 text-xs flex-1">{c.text}</p>
+            <button
+              onClick={() => likeComment(c.id)}
+              disabled={likingComment === c.id}
+              className="xp-button-small flex items-center gap-1 flex-shrink-0"
+              style={{ padding: '4px 8px' }}
+              title="Like this comment"
+            >
+              <Heart className="w-3 h-3" fill={c.likes > 0 ? 'currentColor' : 'none'} />
+              <span className="text-xs">{c.likes}</span>
+            </button>
+          </div>
         </div>
       ))}
     </div>
@@ -928,9 +967,7 @@ const ProfilePage = ({ token, user }) => {
         const musicData = await musicRes.json();
         setMyMusic(Array.isArray(musicData) ? musicData : []);
         
-        // If user has music, they are a creator
         if (musicData.length > 0) {
-          // Get creator info from the first track's owner
           setCreatorInfo({
             nickname: musicData[0].owner,
             hasMusic: true
@@ -938,18 +975,22 @@ const ProfilePage = ({ token, user }) => {
         }
       }
 
-      // Fetch albums (try to get creator's albums)
-      const albumsRes = await fetch(`${API_URL}/core/albums/`, {
+      // FIXED: Fetch MY albums using the correct endpoint
+      const albumsRes = await fetch(`${API_URL}/core/myalbums/`, {
         headers: { 'Authorization': `Token ${token}` }
       });
       if (albumsRes.ok) {
         const albumsData = await albumsRes.json();
-        // Filter albums by current user if possible
         setMyAlbums(Array.isArray(albumsData) ? albumsData : []);
+      } else {
+        console.error('Failed to fetch my albums:', albumsRes.status);
+        setMyAlbums([]);
       }
 
     } catch (err) {
       console.error('Error fetching profile data:', err);
+      setMyAlbums([]);
+      setMyMusic([]);
     } finally {
       setLoading(false);
     }
@@ -1192,5 +1233,6 @@ const ProfilePage = ({ token, user }) => {
     </div>
   );
 };
+
 
 export default App;
