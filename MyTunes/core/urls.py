@@ -12,8 +12,8 @@ urlpatterns = [
     path('core/music/', cache_page(60)(MusicAPIVIew.as_view())),
     # path("core/musicadd/", MusicAPICreate.as_view()),
     path('core/creatoradd/', CreatorAPIAdd.as_view()),
-    path('core/mymusic/', MyMusicAPIView.as_view()),
-    path('core/albums/',AlbumAPIVIew.as_view()),
+    path('core/mymusic/', cache_page(60)(MyMusicAPIView.as_view())),
+    path('core/albums/',cache_page(60)(AlbumAPIVIew.as_view())),
     path('core/discography/<slug:creator_slug>/',DiscographyAPIView.as_view()),
     path('core/myalbums/', MyAlbumaPIView.as_view())
     
