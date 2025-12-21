@@ -1,4 +1,4 @@
-
+from django.views.decorators.cache import cache_page
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
@@ -9,7 +9,7 @@ from .views import (
 
 
 urlpatterns = [
-    path('core/music/', MusicAPIVIew.as_view()),
+    path('core/music/', cache_page(60)(MusicAPIVIew.as_view())),
     # path("core/musicadd/", MusicAPICreate.as_view()),
     path('core/creatoradd/', CreatorAPIAdd.as_view()),
     path('core/mymusic/', MyMusicAPIView.as_view()),
