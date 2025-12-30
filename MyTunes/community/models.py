@@ -1,6 +1,6 @@
 from django.db import models
 from core.models import Music, Album,Creator
-from django.contrib.auth.models import User
+from coolAuth.models import User
 
 # Create your models here.
 class Thread(models.Model):

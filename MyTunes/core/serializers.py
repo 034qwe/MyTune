@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from coolAuth.models import User
 from .models import *
 import inspect
 
