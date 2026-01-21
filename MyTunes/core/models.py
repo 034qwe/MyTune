@@ -9,7 +9,7 @@ def user_covers_path(instance,filename):
     return f'covers/{instance.creator.nickname}/{filename}'
     
 def  user_icon_path(instance, filename):
-    return f'icons/{instance.account.username}/{filename}'
+    return f'icons/{instance.account.email}/{filename}'
 
 def user_tunes_path(instance, filename):
     # if filename[-3:] != 'mp4':

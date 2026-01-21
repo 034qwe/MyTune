@@ -6,13 +6,19 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import logging
 
+logger = logging.getLogger(__name__)
 
 @api_view(["POST"])
 def google_auth(request):
     token = request.data.get("token")
+    
     if not token:
-        return Response({"error": "Token not provided","status":False}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Token not provided", "status": False}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
     
     try:
         id_info = id_token.verify_oauth2_token(
@@ -20,34 +26,70 @@ def google_auth(request):
             google_requests.Request(), 
             settings.GOOGLE_OAUTH_CLIENT_ID
         )
-        email = id_info['email']
+        
+        # Extract user information
+        email = id_info.get('email')
         first_name = id_info.get('given_name', '')
         last_name = id_info.get('family_name', '')
-        profile_pic_url = id_info.get('picture', '')
-        user, created = User.objects.get_or_create(email=email)
-        if created:
-            user.set_unusable_password()
+        
+        if not email:
+            return Response(
+                {"error": "Email not found in token", "status": False},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get or create user
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'first_name': first_name,
+                'last_name': last_name,
+                'registration_method': 'google',
+                'is_active': True
+            }
+        )
+        
+        # If user exists but registered with email
+        if not created and user.registration_method != 'google':
+            return Response({
+                "error": "This email is already registered with email/password. Please use email login.",
+                "status": False
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Update user info if it was created or if it's a returning Google user
+        if created or user.registration_method == 'google':
             user.first_name = first_name
             user.last_name = last_name
-            user.registration_method = 'google'
+            user.is_active = True
+            if created:
+                user.set_unusable_password()
             user.save()
-        else:
-            if user.registration_method != 'google':
-                return Response({
-                    "error": "User needs to sign in through email",
-                    "status": False
-                }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
-        return Response(
-            {
-                "tokens": {
-                    "access": str(refresh.access_token),
-                    "refresh": str(refresh),
-                },
-                "status": True
-            }, status=status.HTTP_200_OK
-            )
+        
+        return Response({
+            "tokens": {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            },
+            "user": {
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            },
+            "status": True
+        }, status=status.HTTP_200_OK)
             
-
-    except ValueError:
-        return Response({"error": "Invalid token","status":False}, status=status.HTTP_400_BAD_REQUEST)
+    except ValueError as e:
+        logger.error(f"Google token verification failed: {str(e)}")
+        return Response(
+            {"error": "Invalid token", "status": False}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        logger.error(f"Google auth error: {str(e)}")
+        return Response(
+            {"error": "Authentication failed", "status": False},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

@@ -184,30 +184,109 @@ const AuthPage = ({ setToken }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Load Google Sign-In script
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogleSignIn;
+      document.body.appendChild(script);
+    };
+
+    loadGoogleScript();
+
+    return () => {
+      // Cleanup: remove script if component unmounts
+      const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (script) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  const initializeGoogleSignIn = () => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse,
+        auto_select: false,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById('googleSignInButton'),
+        {
+          theme: 'outline',
+          size: 'large',
+          width: 350,
+          text: 'continue_with',
+        }
+      );
+    }
+  };
+
+  const handleGoogleResponse = async (response) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_URL}/google-auth/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: response.credential,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.status && data.tokens) {
+        localStorage.setItem('token', data.tokens.access);
+        setToken(data.tokens.access);
+      } else {
+        setError(data.error || 'Google authentication failed');
+      }
+    } catch (err) {
+      console.error('Google auth error:', err);
+      setError('Connection error during Google authentication');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     setError('');
+    setLoading(true);
 
     try {
       if (isLogin) {
-        const res = await fetch(`${API_URL}/auth/token/login/`, {
+        const res = await fetch(`${API_URL}/api/token/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+        
         const data = await res.json();
-        if (data.auth_token) {
-          localStorage.setItem('token', data.auth_token);
-          setToken(data.auth_token);
+        
+        if (data.access) {
+          localStorage.setItem('token', data.access);
+          setToken(data.access);
         } else {
           setError('Invalid credentials');
         }
       } else {
-        const res = await fetch(`${API_URL}/auth/users/`, {
+        // Registration
+        const res = await fetch(`${API_URL}/api/register/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+        
         if (res.ok) {
           setIsLogin(true);
           setError('Account created! Please login.');
@@ -218,11 +297,13 @@ const AuthPage = ({ setToken }) => {
       }
     } catch (err) {
       setError('Connection error');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !loading) {
       handleSubmit();
     }
   };
@@ -244,6 +325,26 @@ const AuthPage = ({ setToken }) => {
             <h1 className="text-3xl font-bold text-blue-900">MyTunes</h1>
           </div>
 
+          {/* Google Sign-In Button */}
+          <div className="mb-4">
+            <div 
+              id="googleSignInButton" 
+              className="flex justify-center"
+              style={{ minHeight: '44px' }}
+            ></div>
+          </div>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t-2 border-gray-400"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 font-bold">
+                OR
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold mb-1 text-gray-700">Username:</label>
@@ -254,6 +355,7 @@ const AuthPage = ({ setToken }) => {
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="xp-input"
+                disabled={loading}
               />
             </div>
             <div>
@@ -265,21 +367,33 @@ const AuthPage = ({ setToken }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="xp-input"
+                disabled={loading}
               />
             </div>
             
             {error && (
-              <div className="xp-message xp-message-error">
+              <div className={`xp-message ${error.includes('created') ? 'xp-message-success' : 'xp-message-error'}`}>
                 {error}
               </div>
             )}
 
-            <button onClick={handleSubmit} className="xp-button w-full">
-              {isLogin ? 'Login' : 'Register'}
+            <button 
+              onClick={handleSubmit} 
+              className="xp-button w-full"
+              disabled={loading}
+            >
+              {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
             </button>
           </div>
 
-          <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-4 text-blue-700 hover:text-blue-900 font-bold text-sm underline">
+          <button 
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError('');
+            }} 
+            className="w-full mt-4 text-blue-700 hover:text-blue-900 font-bold text-sm underline"
+            disabled={loading}
+          >
             {isLogin ? 'Need an account? Register' : 'Have an account? Login'}
           </button>
         </div>
