@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Music, User, Album, Heart, MessageCircle, Plus, Upload, LogOut, Menu, X, Send, Trash2 } from 'lucide-react';
+const GOOGLE_CLIENT_ID = '380478908778-rfs17kjgg22bodftoe39vnqllmgfeeab.apps.googleusercontent.com';
 
 const API_URL = 'http://localhost:8000';
 
@@ -26,7 +27,7 @@ const App = () => {
   const fetchUser = async () => {
     try {
       const res = await fetch(`${API_URL}/auth/users/me/`, {
-        headers: { 'Authorization': `Token ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
       setUser(data);
@@ -38,7 +39,7 @@ const App = () => {
   const checkCreator = async () => {
     try {
       const res = await fetch(`${API_URL}/core/mymusic/`, {
-        headers: { 'Authorization': `Token ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
         const data = await res.json();
@@ -66,7 +67,7 @@ const App = () => {
 const fetchAlbums = async () => {
   try {
     const res = await fetch(`${API_URL}/core/albums/`, {
-      headers: token ? { 'Authorization': `Token ${token}` } : {}
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
     });
     
     if (res.ok) {
@@ -314,7 +315,7 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
       const res = await fetch(`${API_URL}/core/creatoradd/`, {
         method: 'POST',
         headers: { 
-          'Authorization': `Token ${token}`
+          'Authorization': `Bearer ${token}`
         },
         body: formData
       });
@@ -432,7 +433,7 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
     try {
       const res = await fetch(`${API_URL}/core/music/`, {
         method: 'POST',
-        headers: { 'Authorization': `Token ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
 
@@ -569,7 +570,7 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
     try {
       const res = await fetch(`${API_URL}/core/albums/`, {
         method: 'POST',
-        headers: { 'Authorization': `Token ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
 
@@ -731,7 +732,7 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
       const res = await fetch(`${API_URL}/comm/threads/`, {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ title: threadTitle, text: threadText })
@@ -756,7 +757,7 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
       const res = await fetch(`${API_URL}/comm/ThreadLike/`, {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ where: threadId })
@@ -859,7 +860,7 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
       const res = await fetch(`${API_URL}/comm/comments/`, {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ comment, about_w: threadId })
@@ -881,7 +882,7 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
       const res = await fetch(`${API_URL}/comm/CommentLike/`, {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
@@ -961,7 +962,7 @@ const ProfilePage = ({ token, user }) => {
     try {
       // Fetch my music
       const musicRes = await fetch(`${API_URL}/core/mymusic/`, {
-        headers: { 'Authorization': `Token ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`}
       });
       if (musicRes.ok) {
         const musicData = await musicRes.json();
@@ -977,7 +978,7 @@ const ProfilePage = ({ token, user }) => {
 
       // FIXED: Fetch MY albums using the correct endpoint
       const albumsRes = await fetch(`${API_URL}/core/myalbums/`, {
-        headers: { 'Authorization': `Token ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (albumsRes.ok) {
         const albumsData = await albumsRes.json();
