@@ -27,7 +27,7 @@ node_modules/
 # React build
 mytunes-frontend/build/
 build/
-mytunes-frontend/package-lock.json
+package-lock.json
 # Testing
 /coverage
 
