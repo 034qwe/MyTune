@@ -6,7 +6,11 @@ from .models import *
 from rest_framework.permissions import IsAuthenticated , IsAuthenticatedOrReadOnly
 from django.db import IntegrityError
 
-# Create your views here.
+class CategoryListAPIView(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
 class MusicAPIVIew(generics.ListCreateAPIView):
     queryset = Music.objects.all()
     serializer_class = MusicSerializer
@@ -38,13 +42,16 @@ class MyMusicAPIView(generics.ListAPIView):
 
 class AlbumAPIVIew(generics.ListCreateAPIView):
     def perform_create(self, serializer):
-        creator = Creator.objects.get(account=self.request.user)
-        serializer.save(creator=creator)
+        try:
+            creator = Creator.objects.get(account=self.request.user)
+            serializer.save(creator=creator)
+        except Creator.DoesNotExist:
+            raise serializers.ValidationError({"detail": "You must be a creator to create albums."})
 
     def get_queryset(self):
         return Album.objects.filter(release=True)
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = AlbumSerializer  
     
 class MyAlbumaPIView(generics.ListAPIView):

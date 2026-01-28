@@ -29,6 +29,10 @@ const App = () => {
       const res = await fetch(`${API_URL}/auth/users/me/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (res.status === 401) {
+        logout();
+        return;
+      }
       const data = await res.json();
       setUser(data);
     } catch (err) {
@@ -41,6 +45,10 @@ const App = () => {
       const res = await fetch(`${API_URL}/core/mymusic/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (res.status === 401) {
+        logout();
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         if (data.length > 0) {
@@ -62,27 +70,30 @@ const App = () => {
     }
   };
 
-  // Replace the fetchAlbums function in your App component with this:
+  const fetchAlbums = async () => {
+    try {
+      const res = await fetch(`${API_URL}/core/albums/`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
-const fetchAlbums = async () => {
-  try {
-    const res = await fetch(`${API_URL}/core/albums/`, {
-      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-    });
-    
-    if (res.ok) {
-      const data = await res.json();
-      // Ensure data is an array
-      setAlbums(Array.isArray(data) ? data : []);
-    } else {
-      console.error('Failed to fetch albums:', res.status);
+      if (res.ok) {
+        const data = await res.json();
+        // Ensure data is an array
+        setAlbums(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch albums:', res.status);
+        setAlbums([]);
+      }
+    } catch (err) {
+      console.error('Error fetching albums:', err);
       setAlbums([]);
     }
-  } catch (err) {
-    console.error('Error fetching albums:', err);
-    setAlbums([]);
-  }
-};
+  };
 
   const fetchThreads = async () => {
     try {
@@ -167,11 +178,11 @@ const fetchAlbums = async () => {
           </div>
           <div className="xp-window-content">
             {currentPage === 'music' && <MusicPage music={music} token={token} />}
-            {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} />}
-            {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} />}
-            {currentPage === 'profile' && <ProfilePage token={token} user={user} />}
-            {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} />}
-            {currentPage === 'upload' && <UploadPage token={token} albums={albums} fetchMusic={fetchMusic} />}
+            {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} logout={logout} />}
+            {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} logout={logout} />}
+            {currentPage === 'profile' && <ProfilePage token={token} user={user} logout={logout} />}
+            {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} logout={logout} />}
+            {currentPage === 'upload' && <UploadPage token={token} fetchMusic={fetchMusic} logout={logout} />}
           </div>
         </div>
       </main>
@@ -181,7 +192,7 @@ const fetchAlbums = async () => {
 
 const AuthPage = ({ setToken }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -268,7 +279,7 @@ const AuthPage = ({ setToken }) => {
         const res = await fetch(`${API_URL}/api/token/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ email, password })
         });
         
         const data = await res.json();
@@ -284,7 +295,7 @@ const AuthPage = ({ setToken }) => {
         const res = await fetch(`${API_URL}/api/register/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ email, password })
         });
         
         if (res.ok) {
@@ -292,7 +303,7 @@ const AuthPage = ({ setToken }) => {
           setError('Account created! Please login.');
         } else {
           const data = await res.json();
-          setError(data.username?.[0] || data.password?.[0] || 'Registration failed');
+          setError(data.email?.[0] || data.password?.[0] || data.error || 'Registration failed');
         }
       }
     } catch (err) {
@@ -347,12 +358,12 @@ const AuthPage = ({ setToken }) => {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold mb-1 text-gray-700">Username:</label>
+              <label className="block text-sm font-bold mb-1 text-gray-700">Email:</label>
               <input
-                type="text"
-                placeholder="Enter username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="xp-input"
                 disabled={loading}
@@ -402,7 +413,7 @@ const AuthPage = ({ setToken }) => {
   );
 };
 
-const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
+const BecomeCreatorPage = ({ token, setCreator, setCurrentPage, logout }) => {
   const [nickname, setNickname] = useState('');
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState(null);
@@ -433,6 +444,11 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
         },
         body: formData
       });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
       const data = await res.json();
 
@@ -520,12 +536,60 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage }) => {
   );
 };
 
-const UploadPage = ({ token, albums, fetchMusic }) => {
+const UploadPage = ({ token, fetchMusic, logout }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [albumId, setAlbumId] = useState('');
   const [tune, setTune] = useState(null);
   const [message, setMessage] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [myAlbums, setMyAlbums] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchMyAlbums();
+  }, []);
+
+  const fetchMyAlbums = async () => {
+    try {
+      const res = await fetch(`${API_URL}/core/myalbums/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        setMyAlbums(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch my albums:', err);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/core/categories/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+    }
+  };
+
+  const toggleCategory = (catId) => {
+    if (selectedCategories.includes(catId)) {
+      setSelectedCategories(selectedCategories.filter(id => id !== catId));
+    } else {
+      setSelectedCategories([...selectedCategories, catId]);
+    }
+  };
 
   const handleUpload = async () => {
     if (!tune) {
@@ -543,6 +607,11 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
     formData.append('description', description);
     formData.append('album', albumId);
     formData.append('tune', tune);
+    
+    // Append each category ID individually
+    selectedCategories.forEach(catId => {
+      formData.append('category_ids', catId);
+    });
 
     try {
       const res = await fetch(`${API_URL}/core/music/`, {
@@ -551,11 +620,17 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
         body: formData
       });
 
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+
       if (res.ok) {
         setMessage('✅ Track uploaded successfully!');
         setTitle('');
         setDescription('');
         setTune(null);
+        setSelectedCategories([]);
         document.querySelector('input[type="file"]').value = '';
         fetchMusic();
       } else {
@@ -590,6 +665,26 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
       </div>
 
       <div className="xp-panel">
+        <label className="block text-sm font-bold mb-2 text-gray-700">Categories:</label>
+        <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+          {categories.length === 0 ? (
+            <p className="text-xs text-gray-500">No categories available</p>
+          ) : (
+            categories.map(cat => (
+              <label key={cat.id} className="flex items-center gap-1 text-sm bg-white px-2 py-1 rounded border border-gray-300 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={selectedCategories.includes(cat.id)}
+                  onChange={() => toggleCategory(cat.id)}
+                />
+                {cat.cat_name}
+              </label>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="xp-panel">
         <label className="block text-sm font-bold mb-2 text-gray-700">Album:</label>
         <select
           value={albumId}
@@ -597,7 +692,7 @@ const UploadPage = ({ token, albums, fetchMusic }) => {
           className="xp-input"
         >
           <option value="">Select Album</option>
-          {albums.map((album) => (
+          {myAlbums.map((album) => (
             <option key={album.id} value={album.id}>{album.name}</option>
           ))}
         </select>
@@ -648,7 +743,7 @@ const MusicPage = ({ music }) => {
               </div>
             )}
             <audio controls className="w-full mt-2">
-              <source src={`${API_URL}${track.tune}`} type="audio/mpeg" />
+              <source src={`${String(track.tune).startsWith('http') ? track.tune : API_URL + track.tune}`} />
             </audio>
           </div>
         </div>
@@ -657,7 +752,7 @@ const MusicPage = ({ music }) => {
   );
 };
 
-const AlbumsPage = ({ albums, token, fetchAlbums }) => {
+const AlbumsPage = ({ albums, token, fetchAlbums, logout }) => {
   const [showCreateAlbum, setShowCreateAlbum] = useState(false);
   const [albumName, setAlbumName] = useState('');
   const [albumCover, setAlbumCover] = useState(null);
@@ -687,6 +782,11 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
       if (res.ok) {
         setMessage('✅ Album created!');
@@ -792,7 +892,7 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
             <div key={album.id} className="xp-panel">
               {album.cover_album && (
                 <img 
-                  src={`${API_URL}${album.cover_album}`} 
+                  src={`${String(album.cover_album).startsWith('http') ? album.cover_album : API_URL + album.cover_album}`} 
                   alt={album.name} 
                   className="w-full h-48 object-cover mb-3 border-2 border-gray-400"
                   onError={(e) => {
@@ -810,11 +910,16 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
               <div className="space-y-1 mt-2">
                 <p className="text-gray-700 text-sm font-bold">Tracks ({album.tracks?.length || 0}):</p>
                 {album.tracks && album.tracks.length > 0 ? (
-                  <div className="max-h-32 overflow-y-auto">
+                  <div className="max-h-48 overflow-y-auto space-y-2">
                     {album.tracks.map((track, i) => (
-                      <p key={i} className="text-gray-700 text-xs py-1 border-b border-gray-300 last:border-0">
-                        {i + 1}. {track}
-                      </p>
+                      <div key={track.id || i} className="border-b border-gray-300 pb-2 last:border-0">
+                        <p className="text-gray-700 text-xs">
+                          {i + 1}. {track.title}
+                        </p>
+                        <audio controls className="w-full mt-1" style={{ height: '28px' }}>
+                          <source src={`${String(track.tune).startsWith('http') ? track.tune : API_URL + track.tune}`} />
+                        </audio>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -829,7 +934,7 @@ const AlbumsPage = ({ albums, token, fetchAlbums }) => {
   );
 };
 
-const CommunityPage = ({ threads, token, fetchThreads, user }) => {
+const CommunityPage = ({ threads, token, fetchThreads, user, logout }) => {
   const [showNewThread, setShowNewThread] = useState(false);
   const [threadTitle, setThreadTitle] = useState('');
   const [threadText, setThreadText] = useState('');
@@ -851,6 +956,11 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
         },
         body: JSON.stringify({ title: threadTitle, text: threadText })
       });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
       if (res.ok) {
         setMessage('✅ Thread created!');
@@ -876,6 +986,11 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
         },
         body: JSON.stringify({ where: threadId })
       });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
       if (res.ok) {
         fetchThreads();
@@ -955,7 +1070,7 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
             </button>
           </div>
           {expandedThread === thread.id && (
-            <ThreadComments threadId={thread.id} token={token} comments={thread.comments} fetchThreads={fetchThreads} />
+            <ThreadComments threadId={thread.id} token={token} comments={thread.comments} fetchThreads={fetchThreads} logout={logout} />
           )}
         </div>
       ))}
@@ -963,7 +1078,7 @@ const CommunityPage = ({ threads, token, fetchThreads, user }) => {
   );
 };
 
-const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
+const ThreadComments = ({ threadId, token, comments, fetchThreads, logout }) => {
   const [comment, setComment] = useState('');
   const [likingComment, setLikingComment] = useState(null);
 
@@ -979,6 +1094,11 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
         },
         body: JSON.stringify({ comment, about_w: threadId })
       });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
       if (res.ok) {
         setComment('');
@@ -1003,6 +1123,11 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
           where: commentId
         })
       });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
       if (res.ok) {
         fetchThreads();
@@ -1056,14 +1181,186 @@ const ThreadComments = ({ threadId, token, comments, fetchThreads }) => {
   );
 };
 
-// Add this ProfilePage component to your App.js
+const AddMusicModal = ({ token, album, onClose, onSuccess, logout }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [tune, setTune] = useState(null);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
-const ProfilePage = ({ token, user }) => {
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/core/categories/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+    }
+  };
+
+  const toggleCategory = (catId) => {
+    if (selectedCategories.includes(catId)) {
+      setSelectedCategories(selectedCategories.filter(id => id !== catId));
+    } else {
+      setSelectedCategories([...selectedCategories, catId]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!tune) {
+      setMessage('❌ Please select an audio file');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('album', album.id);
+    formData.append('tune', tune);
+    
+    // Append each category ID individually
+    selectedCategories.forEach(catId => {
+      formData.append('category_ids', catId);
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/core/music/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+
+      if (res.ok) {
+        setMessage('✅ Track uploaded successfully!');
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+        }, 1500);
+      } else {
+        const data = await res.json();
+        setMessage('❌ Upload failed: ' + JSON.stringify(data));
+      }
+    } catch (err) {
+      setMessage('❌ Connection error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="xp-window" style={{ width: '400px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="xp-window-title">
+          <span className="font-bold">📤 Add Music to {album.name}</span>
+          <div className="xp-window-controls">
+            <button onClick={onClose} className="xp-control">✕</button>
+          </div>
+        </div>
+        <div className="xp-window-content">
+          <div className="space-y-4">
+            <div className="xp-panel">
+              <label className="block text-sm font-bold mb-2 text-gray-700">Title:</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="xp-input"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="xp-panel">
+              <label className="block text-sm font-bold mb-2 text-gray-700">Description:</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows="3"
+                className="xp-input"
+                disabled={loading}
+              />
+            </div>
+            
+            <div className="xp-panel">
+              <label className="block text-sm font-bold mb-2 text-gray-700">Categories:</label>
+              <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+                {categories.length === 0 ? (
+                  <p className="text-xs text-gray-500">No categories available</p>
+                ) : (
+                  categories.map(cat => (
+                    <label key={cat.id} className="flex items-center gap-1 text-sm bg-white px-2 py-1 rounded border border-gray-300 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedCategories.includes(cat.id)}
+                        onChange={() => toggleCategory(cat.id)}
+                      />
+                      {cat.cat_name}
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="xp-panel">
+              <label className="block text-sm font-bold mb-2 text-gray-700">Audio File:</label>
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => setTune(e.target.files[0])}
+                className="xp-file-input"
+                disabled={loading}
+              />
+            </div>
+
+            {message && (
+              <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
+                {message}
+              </div>
+            )}
+
+            <div className="flex gap-2 justify-end mt-4">
+               <button onClick={onClose} className="xp-button" disabled={loading}>
+                Cancel
+              </button>
+              <button
+                onClick={handleUpload}
+                className="xp-button"
+                disabled={loading}
+              >
+                {loading ? 'Uploading...' : 'Upload'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProfilePage = ({ token, user, logout }) => {
   const [loading, setLoading] = useState(true);
   const [creatorInfo, setCreatorInfo] = useState(null);
   const [myAlbums, setMyAlbums] = useState([]);
   const [myMusic, setMyMusic] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedAlbumForUpload, setSelectedAlbumForUpload] = useState(null);
 
   useEffect(() => {
     if (token) {
@@ -1078,6 +1375,12 @@ const ProfilePage = ({ token, user }) => {
       const musicRes = await fetch(`${API_URL}/core/mymusic/`, {
         headers: { 'Authorization': `Bearer ${token}`}
       });
+      
+      if (musicRes.status === 401) {
+        logout();
+        return;
+      }
+
       if (musicRes.ok) {
         const musicData = await musicRes.json();
         setMyMusic(Array.isArray(musicData) ? musicData : []);
@@ -1094,6 +1397,12 @@ const ProfilePage = ({ token, user }) => {
       const albumsRes = await fetch(`${API_URL}/core/myalbums/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+
+      if (albumsRes.status === 401) {
+        logout();
+        return;
+      }
+
       if (albumsRes.ok) {
         const albumsData = await albumsRes.json();
         setMyAlbums(Array.isArray(albumsData) ? albumsData : []);
@@ -1298,7 +1607,7 @@ const ProfilePage = ({ token, user }) => {
                 <div key={album.id} className="xp-panel">
                   {album.cover_album && (
                     <img 
-                      src={`${API_URL}${album.cover_album}`} 
+                      src={`${String(album.cover_album).startsWith('http') ? album.cover_album : API_URL + album.cover_album}`} 
                       alt={album.name} 
                       className="w-full h-40 object-cover mb-3 border-2 border-gray-400 rounded"
                       onError={(e) => {
@@ -1323,16 +1632,29 @@ const ProfilePage = ({ token, user }) => {
                       🔒 Private
                     </span>
                   )}
+                  <div className="mt-3 mb-2">
+                    <button
+                      onClick={() => setSelectedAlbumForUpload(album)}
+                      className="xp-button-small w-full flex items-center justify-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" /> Add Music
+                    </button>
+                  </div>
                   <div className="space-y-1 mt-2">
                     <p className="text-xs font-bold text-gray-700">
                       Tracks ({album.tracks?.length || 0}):
                     </p>
                     {album.tracks && album.tracks.length > 0 ? (
-                      <div className="max-h-24 overflow-y-auto">
+                      <div className="max-h-32 overflow-y-auto space-y-2">
                         {album.tracks.map((track, i) => (
-                          <p key={i} className="text-xs text-gray-700 py-1 border-b border-gray-200 last:border-0">
-                            {i + 1}. {track}
-                          </p>
+                          <div key={track.id || i} className="border-b border-gray-200 pb-2 last:border-0">
+                            <p className="text-xs text-gray-700">
+                              {i + 1}. {track.title}
+                            </p>
+                            <audio controls className="w-full mt-1" style={{ height: '24px' }}>
+                              <source src={`${String(track.tune).startsWith('http') ? track.tune : API_URL + track.tune}`} />
+                            </audio>
+                          </div>
                         ))}
                       </div>
                     ) : (
@@ -1344,6 +1666,19 @@ const ProfilePage = ({ token, user }) => {
             </div>
           )}
         </div>
+      )}
+      
+      {selectedAlbumForUpload && (
+        <AddMusicModal
+          token={token}
+          album={selectedAlbumForUpload}
+          onClose={() => setSelectedAlbumForUpload(null)}
+          onSuccess={() => {
+            fetchProfileData();
+            setSelectedAlbumForUpload(null);
+          }}
+          logout={logout}
+        />
       )}
     </div>
   );

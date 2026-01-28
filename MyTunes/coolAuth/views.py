@@ -93,3 +93,36 @@ def google_auth(request):
             {"error": "Authentication failed", "status": False},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(["POST"])
+def register(request):
+    email = request.data.get("email")
+    password = request.data.get("password")
+    
+    if not email or not password:
+        return Response(
+            {"error": "Email and password are required"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"error": "User with this email already exists"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    try:
+        user = User.objects.create_user(email=email, password=password)
+        user.is_active = True
+        user.save()
+        
+        return Response(
+            {"message": "User created successfully"}, 
+            status=status.HTTP_201_CREATED
+        )
+    except Exception as e:
+        logger.error(f"Registration error: {str(e)}")
+        return Response(
+            {"error": "Registration failed"}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

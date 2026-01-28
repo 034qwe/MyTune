@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from coolAuth.views import google_auth
+from coolAuth.views import google_auth, register
 
 
 urlpatterns = [
@@ -15,6 +15,7 @@ urlpatterns = [
     path('',include('core.urls')),
     path('',include('community.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/register/', register, name='register'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('google-auth/', google_auth, name = 'google-auth' ),
     
