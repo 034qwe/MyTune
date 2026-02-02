@@ -7,8 +7,30 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import logging
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 logger = logging.getLogger(__name__)
+
+
+
+class MakeAdminAPIView(APIView):
+
+    def post(self, request):
+        newstaff = request.data.get('email')
+
+        if not newstaff:
+            return Response(
+                {"error": "you arent give new admin email in request", "status": False}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        User.objects.filter(email = newstaff).update(is_staff = True)
+        return Response(
+                {"admin added successfully"}, 
+                status=status.HTTP_200_OK
+                )
+
+    permission_classes = (IsAuthenticated,)
 
 @api_view(["POST"])
 def google_auth(request):
@@ -27,7 +49,7 @@ def google_auth(request):
             settings.GOOGLE_OAUTH_CLIENT_ID
         )
         
-        # Extract user information
+      
         email = id_info.get('email')
         first_name = id_info.get('given_name', '')
         last_name = id_info.get('family_name', '')
@@ -38,7 +60,7 @@ def google_auth(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Get or create user
+       
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
@@ -49,14 +71,14 @@ def google_auth(request):
             }
         )
         
-        # If user exists but registered with email
+  
         if not created and user.registration_method != 'google':
             return Response({
                 "error": "This email is already registered with email/password. Please use email login.",
                 "status": False
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Update user info if it was created or if it's a returning Google user
+
         if created or user.registration_method == 'google':
             user.first_name = first_name
             user.last_name = last_name
@@ -65,7 +87,6 @@ def google_auth(request):
                 user.set_unusable_password()
             user.save()
         
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({
