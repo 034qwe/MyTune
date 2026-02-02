@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, User, Album, Heart, MessageCircle, Plus, Upload, LogOut, Menu, X, Send, Trash2 } from 'lucide-react';
+import { Music, User, Album, Heart, MessageCircle, Plus, Upload, LogOut, Menu, X, Send, Trash2, Shield } from 'lucide-react';
 const GOOGLE_CLIENT_ID = '380478908778-rfs17kjgg22bodftoe39vnqllmgfeeab.apps.googleusercontent.com';
 
 const API_URL = 'http://localhost:8000';
@@ -149,6 +149,11 @@ const App = () => {
                       Upload
                     </button>
                   )}
+                  {user?.is_staff && (
+                    <button onClick={() => setCurrentPage('admin')} className={`xp-nav-button ${currentPage === 'admin' ? 'xp-nav-button-active' : ''}`}>
+                      <Shield className="w-4 h-4 inline mr-1" /> Admin
+                    </button>
+                  )}
                 </nav>
           <div className="flex items-center gap-3">
             <span className="text-white hidden md:block font-bold">{user?.username}</span>
@@ -169,6 +174,7 @@ const App = () => {
               {currentPage === 'profile' && '👤 My Profile'}
               {currentPage === 'become-creator' && '⭐ Become Creator'}
               {currentPage === 'upload' && '📤 Upload Track'}
+              {currentPage === 'admin' && '🛡️ Admin Panel'}
             </span>
             <div className="xp-window-controls">
               <span className="xp-control">_</span>
@@ -183,6 +189,7 @@ const App = () => {
             {currentPage === 'profile' && <ProfilePage token={token} user={user} logout={logout} />}
             {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} logout={logout} />}
             {currentPage === 'upload' && <UploadPage token={token} fetchMusic={fetchMusic} logout={logout} />}
+            {currentPage === 'admin' && <AdminPage token={token} logout={logout} />}
           </div>
         </div>
       </main>
@@ -1679,6 +1686,105 @@ const ProfilePage = ({ token, user, logout }) => {
           }}
           logout={logout}
         />
+      )}
+    </div>
+  );
+};
+
+const AdminPage = ({ token, logout }) => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(`${API_URL}/coolAuth/users/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const makeAdmin = async (email) => {
+    try {
+      const res = await fetch(`${API_URL}/coolAuth/add/admin/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+
+      if (res.ok) {
+        setMessage(`✅ User ${email} is now an admin!`);
+        fetchUsers();
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('❌ Failed to add admin');
+      }
+    } catch (err) {
+      setMessage('❌ Connection error');
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="xp-panel bg-yellow-50">
+        <h2 className="text-xl font-bold text-red-900 mb-2">🛡️ Admin Panel</h2>
+        <p className="text-sm text-gray-700">
+          Manage users and permissions. Be careful!
+        </p>
+      </div>
+
+      {message && (
+        <div className={`xp-message ${message.includes('✅') ? 'xp-message-success' : 'xp-message-error'}`}>
+          {message}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="xp-loading mx-auto"></div>
+      ) : (
+        <div className="grid gap-4">
+          {users.map((u) => (
+            <div key={u.id} className="xp-panel flex items-center justify-between">
+              <div>
+                <p className="font-bold text-blue-900">{u.first_name} {u.last_name}</p>
+                <p className="text-sm text-gray-600">{u.email}</p>
+                {u.is_staff && <span className="xp-badge mt-1 inline-block">Admin</span>}
+              </div>
+              {!u.is_staff && (
+                <button
+                  onClick={() => makeAdmin(u.email)}
+                  className="xp-button-small text-red-700 border-red-300 hover:bg-red-50"
+                >
+                  Make Admin
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

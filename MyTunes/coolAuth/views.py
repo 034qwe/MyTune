@@ -32,6 +32,26 @@ class MakeAdminAPIView(APIView):
 
     permission_classes = (IsAdminUser,)
 
+class UsersListAPIView(APIView):
+    permission_classes = (IsAdminUser,)
+    
+    def get(self, request):
+        users = User.objects.all().values('id', 'email', 'first_name', 'last_name', 'is_staff')
+        return Response(users)
+
+class UserMeAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            'id': user.id,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_staff': user.is_staff
+        })
+
 @api_view(["POST"])
 def google_auth(request):
     token = request.data.get("token")
