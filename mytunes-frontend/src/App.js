@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Music, User, Album, Heart, MessageCircle, Plus, Upload, LogOut, Menu, X, Send, Trash2, Shield } from 'lucide-react';
 const GOOGLE_CLIENT_ID = '380478908778-rfs17kjgg22bodftoe39vnqllmgfeeab.apps.googleusercontent.com';
 
 const API_URL = 'http://localhost:8000';
 
 const App = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [user, setUser] = useState(null);
-  const [currentPage, setCurrentPage] = useState('music');
   const [music, setMusic] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [threads, setThreads] = useState([]);
@@ -127,30 +129,30 @@ const App = () => {
             </div>
           </div>
                 <nav className="hidden md:flex gap-2">
-                  <button onClick={() => setCurrentPage('music')} className={`xp-nav-button ${currentPage === 'music' ? 'xp-nav-button-active' : ''}`}>
+                  <button onClick={() => navigate('/music')} className={`xp-nav-button ${location.pathname === '/music' || location.pathname === '/' ? 'xp-nav-button-active' : ''}`}>
                     Music
                   </button>
-                  <button onClick={() => setCurrentPage('albums')} className={`xp-nav-button ${currentPage === 'albums' ? 'xp-nav-button-active' : ''}`}>
+                  <button onClick={() => navigate('/albums')} className={`xp-nav-button ${location.pathname === '/albums' ? 'xp-nav-button-active' : ''}`}>
                     Albums
                   </button>
-                  <button onClick={() => setCurrentPage('community')} className={`xp-nav-button ${currentPage === 'community' ? 'xp-nav-button-active' : ''}`}>
+                  <button onClick={() => navigate('/community')} className={`xp-nav-button ${location.pathname === '/community' ? 'xp-nav-button-active' : ''}`}>
                     Community
                   </button>
-                  <button onClick={() => setCurrentPage('profile')} className={`xp-nav-button ${currentPage === 'profile' ? 'xp-nav-button-active' : ''}`}>
+                  <button onClick={() => navigate('/profile')} className={`xp-nav-button ${location.pathname === '/profile' ? 'xp-nav-button-active' : ''}`}>
                     Profile
                   </button>
                   {!creator && (
-                    <button onClick={() => setCurrentPage('become-creator')} className={`xp-nav-button ${currentPage === 'become-creator' ? 'xp-nav-button-active' : ''}`}>
+                    <button onClick={() => navigate('/become-creator')} className={`xp-nav-button ${location.pathname === '/become-creator' ? 'xp-nav-button-active' : ''}`}>
                       Become Creator
                     </button>
                   )}
                   {creator && (
-                    <button onClick={() => setCurrentPage('upload')} className={`xp-nav-button ${currentPage === 'upload' ? 'xp-nav-button-active' : ''}`}>
+                    <button onClick={() => navigate('/upload')} className={`xp-nav-button ${location.pathname === '/upload' ? 'xp-nav-button-active' : ''}`}>
                       Upload
                     </button>
                   )}
                   {user?.is_staff && (
-                    <button onClick={() => setCurrentPage('admin')} className={`xp-nav-button ${currentPage === 'admin' ? 'xp-nav-button-active' : ''}`}>
+                    <button onClick={() => navigate('/admin')} className={`xp-nav-button ${location.pathname === '/admin' ? 'xp-nav-button-active' : ''}`}>
                       <Shield className="w-4 h-4 inline mr-1" /> Admin
                     </button>
                   )}
@@ -168,13 +170,16 @@ const App = () => {
         <div className="xp-window">
           <div className="xp-window-title">
             <span className="font-bold">
-              {currentPage === 'music' && '🎵 All Music'}
-              {currentPage === 'albums' && '💿 Albums'}
-              {currentPage === 'community' && '💬 Community'}
-              {currentPage === 'profile' && '👤 My Profile'}
-              {currentPage === 'become-creator' && '⭐ Become Creator'}
-              {currentPage === 'upload' && '📤 Upload Track'}
-              {currentPage === 'admin' && '🛡️ Admin Panel'}
+              <Routes>
+                <Route path="/music" element="🎵 All Music" />
+                <Route path="/albums" element="💿 Albums" />
+                <Route path="/community" element="💬 Community" />
+                <Route path="/profile" element="👤 My Profile" />
+                <Route path="/become-creator" element="⭐ Become Creator" />
+                <Route path="/upload" element="📤 Upload Track" />
+                <Route path="/admin" element="🛡️ Admin Panel" />
+                <Route path="*" element="🎵 MyTunes" />
+              </Routes>
             </span>
             <div className="xp-window-controls">
               <span className="xp-control">_</span>
@@ -183,13 +188,16 @@ const App = () => {
             </div>
           </div>
           <div className="xp-window-content">
-            {currentPage === 'music' && <MusicPage music={music} token={token} />}
-            {currentPage === 'albums' && <AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} logout={logout} />}
-            {currentPage === 'community' && <CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} logout={logout} />}
-            {currentPage === 'profile' && <ProfilePage token={token} user={user} logout={logout} />}
-            {currentPage === 'become-creator' && <BecomeCreatorPage token={token} setCreator={setCreator} setCurrentPage={setCurrentPage} logout={logout} />}
-            {currentPage === 'upload' && <UploadPage token={token} fetchMusic={fetchMusic} logout={logout} />}
-            {currentPage === 'admin' && <AdminPage token={token} logout={logout} />}
+            <Routes>
+              <Route path="/" element={<Navigate to="/music" replace />} />
+              <Route path="/music" element={<MusicPage music={music} token={token} />} />
+              <Route path="/albums" element={<AlbumsPage albums={albums} token={token} fetchAlbums={fetchAlbums} logout={logout} />} />
+              <Route path="/community" element={<CommunityPage threads={threads} token={token} fetchThreads={fetchThreads} user={user} logout={logout} />} />
+              <Route path="/profile" element={<ProfilePage token={token} user={user} logout={logout} />} />
+              <Route path="/become-creator" element={<BecomeCreatorPage token={token} setCreator={setCreator} navigate={navigate} logout={logout} />} />
+              <Route path="/upload" element={<UploadPage token={token} fetchMusic={fetchMusic} logout={logout} />} />
+              <Route path="/admin" element={<AdminPage token={token} logout={logout} />} />
+            </Routes>
           </div>
         </div>
       </main>
@@ -420,7 +428,7 @@ const AuthPage = ({ setToken }) => {
   );
 };
 
-const BecomeCreatorPage = ({ token, setCreator, setCurrentPage, logout }) => {
+const BecomeCreatorPage = ({ token, setCreator, navigate, logout }) => {
   const [nickname, setNickname] = useState('');
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState(null);
@@ -463,7 +471,7 @@ const BecomeCreatorPage = ({ token, setCreator, setCurrentPage, logout }) => {
         setMessage('✅ You are now a creator!');
         setCreator(true);
         setTimeout(() => {
-          setCurrentPage('upload');
+          navigate('/upload');
           window.location.reload();
         }, 1500);
       } else {
@@ -1702,7 +1710,7 @@ const AdminPage = ({ token, logout }) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${API_URL}/coolAuth/users/`, {
+      const res = await fetch(`${API_URL}/users/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.status === 401) {
@@ -1722,7 +1730,7 @@ const AdminPage = ({ token, logout }) => {
 
   const makeAdmin = async (email) => {
     try {
-      const res = await fetch(`${API_URL}/coolAuth/add/admin/`, {
+      const res = await fetch(`${API_URL}/add/admin/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

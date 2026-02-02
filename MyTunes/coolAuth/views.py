@@ -26,7 +26,7 @@ class MakeAdminAPIView(APIView):
                 )
         User.objects.filter(email = newstaff).update(is_staff = True)
         return Response(
-                {"admin added successfully"}, 
+                {"status": "admin added successfully"}, 
                 status=status.HTTP_200_OK
                 )
 
