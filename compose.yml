@@ -1,0 +1,50 @@
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgress_container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD} 
+    networks:
+      - mynetwork
+
+  backend:
+    build: ./MyTunes
+    command: "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./MyTunes:/app
+    links:
+      - postgres:postgres
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
+      - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET}
+      - DATABASE_HOST=postgres
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+#   frontend:
+#     build: ./mytunes-frontend
+#     volumes:
+#       - ./mytunes-frontend:/app
+#       - /app/node_modules
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - WDS_SOCKET_PORT=0
+#     networks:
+#       - mynetwork
+volumes:
+  postgres_data:
+
+networks:
+  mynetwork:
+    driver: bridge 
