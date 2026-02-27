@@ -25,23 +25,28 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
       - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET}
-      - DATABASE_HOST=postgres
+      - DATABASE_HOST=${DATABASE_HOST}  
+      - DATABASE_NAME=${DATABASE_NAME}        
+      - DATABASE_USERNAME=${DATABASE_USERNAME}  
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}  
+      - DATABASE_PORT=${DATABASE_PORT}            
     depends_on:
       - postgres
     networks:
       - mynetwork
 
-#   frontend:
-#     build: ./mytunes-frontend
-#     volumes:
-#       - ./mytunes-frontend:/app
-#       - /app/node_modules
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - WDS_SOCKET_PORT=0
-#     networks:
-#       - mynetwork
+  frontend:
+    build: ./mytunes-frontend
+    volumes:
+      - ./mytunes-frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - WDS_SOCKET_PORT=0
+    networks:
+      - mynetwork
+
 volumes:
   postgres_data:
 
