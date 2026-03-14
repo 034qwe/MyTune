@@ -12,7 +12,7 @@ class CategoryListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 class MusicAPIVIew(generics.ListCreateAPIView):
-    queryset = Music.objects.all()
+    queryset = Music.objects.filter(album__release =True)
     serializer_class = MusicSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 

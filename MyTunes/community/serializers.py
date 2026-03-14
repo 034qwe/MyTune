@@ -33,6 +33,7 @@ class ThreadSerializer(serializers.ModelSerializer):
     comments  = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
     
+    
 
     def get_likes(self, obj):
         return len([i for i in Like_Thread.objects.filter(where__pk = obj.pk)])
