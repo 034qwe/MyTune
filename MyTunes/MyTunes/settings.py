@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'community.apps.CommunityConfig',
     'coolAuth.apps.CoolauthConfig',
-    'messanger.apps.CoolauthConfig',
+    'messanger.apps.MessangerConfig',
     'djoser',
     'rest_framework_simplejwt',
     'rest_framework',
