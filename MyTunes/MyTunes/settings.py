@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'community.apps.CommunityConfig',
     'coolAuth.apps.CoolauthConfig',
+    'messanger.apps.CoolauthConfig',
     'djoser',
     'rest_framework_simplejwt',
     'rest_framework',
@@ -101,7 +102,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'MyTunes.wsgi.application'
 ASGI_APPLICATION = 'MyTunes.asgi.application'
 
-
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

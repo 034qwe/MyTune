@@ -1,5 +1,5 @@
 from django.db import models
-from ..coolAuth import User
+from coolAuth.models import User
 
 
 class Room(models.Model):
@@ -12,7 +12,7 @@ class Room(models.Model):
 
 
 class Message(models.Model):
-    room = models.ForeignKey("chat.Room", on_delete=models.CASCADE, related_name="messages")
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="messages")
     text = models.TextField(max_length=500)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages")
     created_at = models.DateTimeField(auto_now_add=True)

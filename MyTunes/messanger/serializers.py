@@ -1,14 +1,20 @@
-from .models import  Room, Message
 from rest_framework import serializers
-from  ..coolAuth.serializers import UserSerializer
+from .models import Room, Message
+from coolAuth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name']
+
 
 class MessageSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Message
-
-
+        fields = ['id', 'text', 'user', 'created_at']
 
 
 class RoomSerializer(serializers.ModelSerializer):
@@ -17,9 +23,12 @@ class RoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Room
-        fields = ["pk", "name", "host", "messages", "current_users", "last_message"]
+        fields = ['pk', 'name', 'host', 'messages', 'current_users', 'last_message']
         depth = 1
-        read_only_fields = ["messages", "last_message"]
+        read_only_fields = ['messages', 'last_message']
 
-    def get_last_message(self, obj: Room):
-        return MessageSerializer(obj.messages.order_by('created_at').last()).data
+    def get_last_message(self, obj):
+        last = obj.messages.order_by('created_at').last()
+        if last:
+            return MessageSerializer(last).data
+        return None
