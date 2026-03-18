@@ -33,7 +33,7 @@ class MakeAdminAPIView(APIView):
     permission_classes = (IsAdminUser,)
 
 class UsersListAPIView(APIView):
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAuthenticated,)
     
     def get(self, request):
         users = User.objects.all().values('id', 'email', 'first_name', 'last_name', 'is_staff')

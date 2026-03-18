@@ -1,7 +1,10 @@
 from django.urls import path
 
-from .consumers import ThreadConsumer
+from consumers import MessageWSConsumer
+from views import RoomHistoryAPIVIew
 
 ws_urlpatterns = [
-    path('ws/messanger/',ThreadConsumer.as_asgi())
+    path('ws/messanger/<str:room_name>/', MessageWSConsumer.as_asgi()),
+    path('messanger/history/<str:room_name>/', RoomHistoryAPIVIew.as_view()),
+
 ]
