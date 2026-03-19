@@ -183,6 +183,24 @@ const MessagesPage = ({ token, user, logout }) => {
   const messagesEndRef = useRef(null);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch(`${API_URL}/users/`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) { logout(); return; }
+        const data = await res.json();
+        setUsers(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    fetchUsers();
+  }, [token]);
+
   // Fetch all registered users
   // Connect WebSocket when activeRoom changes
   useEffect(() => {

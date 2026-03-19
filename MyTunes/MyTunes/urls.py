@@ -15,6 +15,7 @@ urlpatterns = [
     path('',include('core.urls')),
     path('',include('community.urls')),
     path('',include('coolAuth.urls')),
+    path('', include('messanger.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/register/', register, name='register'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
