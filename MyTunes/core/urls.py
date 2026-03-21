@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from .views import (
     MusicAPIVIew, CreatorAPIAdd, MyMusicAPIView,
     AlbumAPIVIew, DiscographyAPIView, MyAlbumaPIView,
-    CategoryListAPIView
+    CategoryListAPIView, TestAPIView
 )
 
 
@@ -18,5 +18,5 @@ urlpatterns = [
     path('core/discography/<slug:creator_slug>/',DiscographyAPIView.as_view()),
     path('core/myalbums/', MyAlbumaPIView.as_view()),
     path('core/categories/', CategoryListAPIView.as_view()),
-    
+    path('core/tests/api/', TestAPIView.as_view())
 ]

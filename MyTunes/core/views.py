@@ -32,6 +32,16 @@ class MusicAPIVIew(generics.ListCreateAPIView):
 #     #         return Music.objects.all()
 #     serializer_class = MusicSerializer
 #     permission_classes = (IsAuthenticated,)
+class TestAPIView(APIView):
+
+    def get(self,request):
+        data_f_w = request.data
+        print(data_f_w)
+        serializer = TestSerializer(data=data_f_w, context={"request": request})
+        if serializer.is_valid():
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MyMusicAPIView(generics.ListAPIView):
     def get_queryset(self):
