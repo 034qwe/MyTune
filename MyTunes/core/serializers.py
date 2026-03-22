@@ -71,5 +71,5 @@ class AlbumSerializer(serializers.ModelSerializer):
  
 class TestSerializer(serializers.Serializer):
     
-    weather = serializers.CharField()
-    red_hot = serializers.CharField()
+    resp = serializers.CharField()
+    

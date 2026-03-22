@@ -5,6 +5,7 @@ from .serializers import *
 from .models import *
 from rest_framework.permissions import IsAuthenticated , IsAuthenticatedOrReadOnly
 from django.db import IntegrityError
+from .services import gpt_call
 
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -36,8 +37,10 @@ class TestAPIView(APIView):
 
     def get(self,request):
         data_f_w = request.data
-        print(data_f_w)
-        serializer = TestSerializer(data=data_f_w, context={"request": request})
+        content = gpt_call(data_f_w['content'])
+        
+        
+        serializer = TestSerializer(data=content, context={"request": request})
         if serializer.is_valid():
             
             return Response(serializer.data, status=status.HTTP_200_OK)
